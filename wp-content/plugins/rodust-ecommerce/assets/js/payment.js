@@ -104,6 +104,11 @@
             shipping_method_id: checkoutData.shipping.id,
             shipping_cost: parseFloat(checkoutData.shipping.price),
             shipping_address: checkoutData.shipping_address,
+            shipping_method: {
+                name: checkoutData.shipping.name || checkoutData.shipping.company,
+                company: checkoutData.shipping.company,
+                delivery_time: checkoutData.shipping.delivery_time
+            },
             items: checkoutData.cart.map(item => ({
                 product_id: item.id,
                 quantity: item.quantity,
@@ -197,6 +202,8 @@
             order: data.order || {},
             payment: data.payment || data.pix || data.boleto || {}
         };
+        
+        console.log('Salvando payment_data no sessionStorage:', paymentData);
         sessionStorage.setItem('payment_data', JSON.stringify(paymentData));
         
         // Limpar dados do checkout

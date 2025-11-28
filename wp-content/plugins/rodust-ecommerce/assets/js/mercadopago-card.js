@@ -136,7 +136,9 @@
      */
     function applyBrazilianMasks() {
         // CPF mask
-        $('#cardholderDocument').on('input', function() {
+        const cpfInput = $('#cardholderDocument');
+        
+        cpfInput.on('input', function() {
             let value = $(this).val().replace(/\D/g, '');
             if (value.length <= 11) {
                 value = value.replace(/(\d{3})(\d)/, '$1.$2');
@@ -144,6 +146,12 @@
                 value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
             }
             $(this).val(value);
+        });
+        
+        // Remover formatação antes do SDK processar
+        cpfInput.on('blur', function() {
+            const cleanValue = $(this).val().replace(/\D/g, '');
+            $(this).attr('data-clean-value', cleanValue);
         });
         
         // Expiration date mask (já formatado pelo MP, mas garantir)
@@ -223,6 +231,10 @@
             
             console.log('Criando token do cartão...');
             
+            // Limpar CPF antes de criar token
+            const cleanCPF = cardholderDocument.replace(/\D/g, '');
+            $('#cardholderDocument').val(cleanCPF);
+            
             // Get card form data and create token
             const tokenData = await cardFormInstance.createCardToken();
             
@@ -235,9 +247,17 @@
             // Get form data
             const formData = cardFormInstance.getCardFormData();
             
+            // Get checkout data for shipping info
+            const checkoutData = JSON.parse(sessionStorage.getItem('checkout_data'));
+            
             // Add card data to order
             const paymentData = {
                 ...orderData,
+                shipping_method: {
+                    name: checkoutData?.shipping?.name || checkoutData?.shipping?.company || 'Frete',
+                    company: checkoutData?.shipping?.company || '',
+                    delivery_time: checkoutData?.shipping?.delivery_time || ''
+                },
                 card_token: tokenData.token,
                 installments: parseInt(formData.installments),
                 payment_method_id: formData.paymentMethodId,

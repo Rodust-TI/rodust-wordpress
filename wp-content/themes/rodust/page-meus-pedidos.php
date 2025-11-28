@@ -1,53 +1,15 @@
 <?php
 /**
  * Template Name: Meus Pedidos
+ * 
+ * IMPORTANTE: Esta página redireciona para /minha-conta?tab=pedidos
+ * pois os pedidos são gerenciados dentro da área "Minha Conta"
  */
 
-get_header();
+// Redirecionar para minha conta com aba de pedidos
+wp_redirect(home_url('/minha-conta?tab=pedidos'));
+exit;
 ?>
-
-<main class="container mx-auto px-4 py-12 md:py-16">
-    
-    <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Meus Pedidos</h1>
-        <p class="text-gray-600">Acompanhe o status dos seus pedidos</p>
-    </div>
-
-    <!-- Mensagem de não autenticado -->
-    <div id="not-authenticated" class="hidden bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded mb-8">
-        <p class="text-yellow-700 mb-4">Você precisa estar logado para ver seus pedidos.</p>
-        <a href="<?php echo home_url('/login'); ?>" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 inline-block">
-            Fazer Login
-        </a>
-    </div>
-
-    <!-- Lista de pedidos -->
-    <div id="orders-area" class="hidden">
-        
-        <!-- Loading -->
-        <div id="loading-orders" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-            <p class="mt-4 text-gray-600">Carregando pedidos...</p>
-        </div>
-
-        <!-- Lista vazia -->
-        <div id="no-orders" class="hidden text-center py-12 bg-gray-50 rounded-lg">
-            <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-            </svg>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">Nenhum pedido encontrado</h3>
-            <p class="text-gray-600 mb-6">Você ainda não fez nenhum pedido.</p>
-            <a href="<?php echo home_url('/produtos'); ?>" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-block">
-                Começar a Comprar
-            </a>
-        </div>
-
-        <!-- Tabela de pedidos -->
-        <div id="orders-list" class="hidden">
-            <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Pedido

@@ -240,6 +240,11 @@ if (!$order_id) {
         color: #065f46;
     }
 
+    .status-processing {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
     /* Loading */
     .loading {
         text-align: center;
@@ -340,11 +345,11 @@ if (!$order_id) {
 </style>
 
 <div class="order-confirmation-container">
-    <div class="confirmation-header">
+    <div class="confirmation-header" id="confirmationHeader">
         <div class="icon">✓</div>
         <h1>Pedido Realizado com Sucesso!</h1>
         <p>Obrigado por confiar na Rodust</p>
-        <p style="font-size: 14px; color: #666; margin-top: 8px;">Após o pagamento seu pedido será separado</p>
+        <p id="headerSubtext" style="font-size: 14px; opacity: 0.9; margin-top: 8px;">Após o pagamento seu pedido será separado</p>
         <div class="order-number" id="orderNumber">
             <div class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px; margin: 0;"></div>
         </div>
@@ -409,11 +414,30 @@ if (!$order_id) {
     // Atualizar número do pedido
     document.getElementById('orderNumber').textContent = paymentData.order_number || `#${orderId}`;
 
+    // Atualizar header se pagamento foi aprovado (cartão)
+    if (paymentMethod === 'credit_card' && paymentData.payment?.status === 'approved') {
+        document.getElementById('headerSubtext').textContent = 'Seu pedido já está sendo separado para envio!';
+        document.getElementById('confirmationHeader').style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+    }
+
     // Renderizar seção de pagamento baseado no método
     renderPaymentSection(paymentMethod, paymentData);
 
     // Renderizar detalhes do pedido
     renderOrderDetails(paymentData, checkoutData);
+
+    /**
+     * Obter nome amigável do método de pagamento
+     */
+    function getPaymentMethodName(method) {
+        const methods = {
+            'pix': 'PIX',
+            'boleto': 'Boleto',
+            'credit_card': 'Cartão de Crédito',
+            'bolbradesco': 'Boleto'
+        };
+        return methods[method] || method.toUpperCase();
+    }
 
     /**
      * Renderizar seção de pagamento
@@ -491,11 +515,61 @@ if (!$order_id) {
                     </div>
                 </div>
             `;
+        } else if (method === 'credit_card') {
+            // Cartão de crédito - exibir status do pagamento
+            const paymentStatus = data.payment?.status || 'pending';
+            const isApproved = paymentStatus === 'approved';
+            
+            html = `
+                <div class="payment-section">
+                    <h2>
+                        💳 Pagamento via Cartão de Crédito
+                        <span class="payment-method-badge" style="background: ${isApproved ? '#10b981' : '#f59e0b'};">
+                            Cartão de Crédito
+                        </span>
+                    </h2>
+                    
+                    <div style="text-align: center; padding: 30px 20px;">
+                        ${isApproved ? `
+                            <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                            <h3 style="color: #10b981; margin: 0 0 10px 0; font-size: 24px;">
+                                Pagamento Aprovado!
+                            </h3>
+                            <p style="color: #6b7280; font-size: 16px;">
+                                Seu pagamento foi processado com sucesso.<br>
+                                Seu pedido já está sendo separado para envio.
+                            </p>
+                        ` : `
+                            <div style="font-size: 64px; margin-bottom: 20px;">⏳</div>
+                            <h3 style="color: #f59e0b; margin: 0 0 10px 0; font-size: 24px;">
+                                Pagamento em Análise
+                            </h3>
+                            <p style="color: #6b7280; font-size: 16px;">
+                                Seu pagamento está sendo processado.<br>
+                                Você receberá uma confirmação em breve.
+                            </p>
+                        `}
+                        
+                        <div style="background: #f3f4f6; border-radius: 8px; padding: 15px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #6b7280;">ID do Pagamento:</span>
+                                <span style="font-weight: 600;">${data.payment?.payment_id || 'N/A'}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #6b7280;">Status:</span>
+                                <span style="font-weight: 600; color: ${isApproved ? '#10b981' : '#f59e0b'};">
+                                    ${isApproved ? 'Aprovado' : 'Em análise'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         } else {
             html = `
                 <div class="payment-section">
                     <h2>💳 Pagamento</h2>
-                    <p>Método: ${method}</p>
+                    <p>Método: ${getPaymentMethodName(method)}</p>
                     <p>Status: Aguardando confirmação</p>
                 </div>
             `;
@@ -519,6 +593,25 @@ if (!$order_id) {
         const total = order.total || (subtotal + shipping);
         const items = order.items || checkout?.cart || [];
 
+        // Determinar status do pagamento
+        const paymentStatus = payment.payment?.status || order.payment_status || 'pending';
+        const isApproved = paymentStatus === 'approved';
+        const isPending = paymentStatus === 'pending';
+        
+        let statusText = 'Aguardando Pagamento';
+        let statusClass = 'status-pending';
+        
+        if (isApproved) {
+            statusText = 'Pagamento Aprovado';
+            statusClass = 'status-paid';
+        } else if (paymentMethod === 'pix' || paymentMethod === 'boleto') {
+            statusText = 'Aguardando Pagamento';
+            statusClass = 'status-pending';
+        } else if (paymentStatus === 'in_process') {
+            statusText = 'Pagamento em Análise';
+            statusClass = 'status-pending';
+        }
+
         let html = `
             <div class="detail-row">
                 <span class="detail-label">Pedido</span>
@@ -527,12 +620,12 @@ if (!$order_id) {
             <div class="detail-row">
                 <span class="detail-label">Status</span>
                 <span class="detail-value">
-                    <span class="status-badge status-pending">Aguardando Pagamento</span>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
                 </span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Método de Pagamento</span>
-                <span class="detail-value">${paymentMethod.toUpperCase()}</span>
+                <span class="detail-value">${getPaymentMethodName(paymentMethod)}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Subtotal</span>

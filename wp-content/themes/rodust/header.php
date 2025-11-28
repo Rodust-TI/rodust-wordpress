@@ -121,7 +121,7 @@
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 👤 Minha Conta
                             </a>
-                            <a href="<?php echo home_url('/meus-pedidos'); ?>" 
+                            <a href="<?php echo home_url('/minha-conta?tab=pedidos'); ?>" 
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 📦 Meus Pedidos
                             </a>
@@ -208,7 +208,7 @@
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 👤 Minha Conta
                             </a>
-                            <a href="<?php echo home_url('/meus-pedidos'); ?>" 
+                            <a href="<?php echo home_url('/minha-conta?tab=pedidos'); ?>" 
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 📦 Meus Pedidos
                             </a>

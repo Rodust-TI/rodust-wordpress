@@ -84,18 +84,8 @@ function rodust_get_api_url() {
 
 /**
  * Adicionar URL da API no JavaScript global
+ * Movido para inline script antes dos demais scripts
  */
-function rodust_api_config() {
-    // Usar proxy WordPress para evitar Mixed Content (HTTPS → HTTP)
-    $api_url = home_url('/wp-json/rodust-proxy/v1');
-    ?>
-    <script>
-        window.RODUST_API_URL = <?php echo json_encode($api_url); ?>;
-        console.log('API URL configurada (via proxy):', window.RODUST_API_URL);
-    </script>
-    <?php
-}
-add_action('wp_head', 'rodust_api_config', 1);
 
 /**
  * Enqueue scripts e styles
@@ -105,13 +95,24 @@ function rodust_scripts() {
     wp_enqueue_style('rodust-fonts', 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap', array(), null);
     
     // CSS compilado do Tailwind
-    wp_enqueue_style('rodust-style', get_template_directory_uri() . '/assets/css/style.css', array('rodust-fonts'), '1.0.0');
+    $version = filemtime(get_template_directory() . '/assets/css/style.css');
+    wp_enqueue_style('rodust-style', get_template_directory_uri() . '/assets/css/style.css', array('rodust-fonts'), $version);
     
-    // JavaScript personalizado
-    wp_enqueue_script('rodust-script', get_template_directory_uri() . '/assets/js/script.js', array(), '1.0.0', true);
-    
-    // jQuery (se necessário)
+    // jQuery (carregar primeiro)
     wp_enqueue_script('jquery');
+    
+    // JavaScript personalizado com versão dinâmica
+    $js_version = filemtime(get_template_directory() . '/assets/js/script.js');
+    wp_enqueue_script('rodust-script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), $js_version, true);
+    
+    // Adicionar API URL inline ANTES do script principal
+    // Usar proxy WordPress para evitar Mixed Content (HTTPS → HTTP)
+    $api_url = home_url('/wp-json/rodust-proxy/v1');
+    $inline_script = sprintf(
+        'window.RODUST_API_URL = %s; console.log("API URL configurada (via proxy):", window.RODUST_API_URL);',
+        wp_json_encode($api_url)
+    );
+    wp_add_inline_script('rodust-script', $inline_script, 'before');
 }
 add_action('wp_enqueue_scripts', 'rodust_scripts');
 
