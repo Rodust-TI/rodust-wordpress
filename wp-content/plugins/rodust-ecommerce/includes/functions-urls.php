@@ -22,19 +22,42 @@ defined('ABSPATH') || exit;
 function rodust_plugin_get_api_url() {
     // 1. Tentar variável de ambiente (wp-config.php)
     if (defined('RODUST_API_URL')) {
-        return rtrim(RODUST_API_URL, '/');
+        $url = rtrim(RODUST_API_URL, '/');
+        // Se página está em HTTPS, forçar URL da API para HTTPS também
+        if (is_ssl() && strpos($url, 'http://') === 0) {
+            $url = str_replace('http://', 'https://', $url);
+            // Se for localhost com porta 8000, usar porta 8443
+            if (strpos($url, 'localhost:8000') !== false) {
+                $url = str_replace('localhost:8000', 'localhost:8443', $url);
+            }
+        }
+        return $url;
     }
     
     // 2. Tentar settings do plugin
     $settings = get_option('rodust_ecommerce_settings', []);
     if (!empty($settings['api_url'])) {
-        return rtrim($settings['api_url'], '/');
+        $url = rtrim($settings['api_url'], '/');
+        // Se página está em HTTPS, forçar URL da API para HTTPS também
+        if (is_ssl() && strpos($url, 'http://') === 0) {
+            // Se for localhost/laravel.test com porta 8000, ajustar para acesso via proxy HTTPS
+            if (strpos($url, 'localhost:8000') !== false) {
+                $url = str_replace('localhost:8000', 'localhost:8443', $url);
+                $url = str_replace('http://', 'https://', $url);
+            } elseif (strpos($url, 'laravel.test') !== false) {
+                // Usar proxy do WordPress para acessar Laravel via HTTPS
+                // O proxy encaminha /wp-json/rodust-proxy/v1/api/... para http://laravel.test/api/...
+                // Então retornamos só o base do proxy sem /api
+                return home_url('/wp-json/rodust-proxy/v1');
+            }
+        }
+        return $url;
     }
     
     // 3. Fallback para localhost (desenvolvimento)
     $protocol = is_ssl() ? 'https' : 'http';
     $host = defined('RODUST_API_HOST') ? RODUST_API_HOST : 'localhost';
-    $port = defined('RODUST_API_PORT') ? RODUST_API_PORT : '8000';
+    $port = defined('RODUST_API_PORT') ? RODUST_API_PORT : ($protocol === 'https' ? '8443' : '8000');
     
     return "{$protocol}://{$host}:{$port}/api";
 }
