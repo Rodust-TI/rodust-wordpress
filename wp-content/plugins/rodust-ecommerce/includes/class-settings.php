@@ -185,7 +185,8 @@ class Rodust_Settings {
      * Render integrations info field
      */
     public function render_integrations_info_field() {
-        $api_url = $this->get_setting('api_url', rodust_plugin_get_api_url());
+        $settings = $this->get_settings();
+        $api_url = $settings['api_url'] ?? rodust_plugin_get_api_url();
         $base_url = rtrim(str_replace('/api', '', $api_url), '/');
         
         echo '<div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">';
