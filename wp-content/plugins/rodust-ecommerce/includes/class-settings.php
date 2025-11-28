@@ -195,13 +195,12 @@ class Rodust_Settings {
     public function render_integrations_info_field() {
         $settings = $this->get_settings();
         
-        // Usar URL pública do Laravel se configurada, senão tenta construir da API URL
-        $laravel_url = $settings['laravel_public_url'] ?? null;
+        // Usar URL pública do Laravel se configurada
+        $laravel_url = $settings['laravel_public_url'] ?? '';
         
+        // Se não estiver configurada, usar localhost como padrão
         if (empty($laravel_url)) {
-            // Fallback: tentar construir da API URL
-            $api_url = $settings['api_url'] ?? rodust_plugin_get_api_url();
-            $laravel_url = rtrim(str_replace('/api', '', $api_url), '/');
+            $laravel_url = 'http://localhost:8000';
         }
         
         $base_url = rtrim($laravel_url, '/');
