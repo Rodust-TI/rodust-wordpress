@@ -36,14 +36,17 @@ wp-config.php
 # Linguagens
 /wp-content/languages/
 
-# MU Plugins (se houver)
-/wp-content/mu-plugins/
+# MU Plugins customizados (manter no Git)
+# Apenas ignorar padrões do WordPress
+!/wp-content/mu-plugins/rodust-*
 
-# Scripts temporários de debug
+# Scripts temporários de debug (DEPRECATED - use mu-plugins/rodust-dev-tools.php)
 test-*.php
 ativar-plugin*.php
 flush-*.php
 limpar-*.php
+*.php.old
+*.php.backup
 
 # Arquivos do sistema
 .DS_Store
