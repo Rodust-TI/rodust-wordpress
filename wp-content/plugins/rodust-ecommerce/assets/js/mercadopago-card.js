@@ -49,7 +49,7 @@
         try {
             cardFormInstance = mpInstance.cardForm({
                 amount: getOrderTotal(),
-                iframe: true,
+                iframe: false,
                 form: {
                     id: "mp-card-form",
                     cardNumber: {
@@ -92,14 +92,6 @@
                         } else {
                             console.log('Formulário de cartão montado com sucesso');
                             applyBrazilianMasks();
-                            
-                            // Mostrar o select de issuer quando necessário
-                            setTimeout(() => {
-                                const issuerSelect = document.getElementById('issuerInput');
-                                if (issuerSelect && issuerSelect.options.length > 1) {
-                                    issuerSelect.style.display = 'block';
-                                }
-                            }, 500);
                         }
                     },
                     onSubmit: event => {
@@ -117,11 +109,12 @@
                         return () => {
                             console.log('Concluído:', resource);
                             
-                            // Mostrar issuer select se tiver opções
+                            // Mostrar issuer select se tiver múltiplas opções
                             if (resource === 'issuer') {
                                 const issuerSelect = document.getElementById('issuerInput');
+                                const issuerGroup = document.getElementById('issuerGroup');
                                 if (issuerSelect && issuerSelect.options.length > 1) {
-                                    issuerSelect.style.display = 'block';
+                                    issuerGroup.style.display = 'block';
                                 }
                             }
                         };

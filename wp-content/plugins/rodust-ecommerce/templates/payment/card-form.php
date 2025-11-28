@@ -20,18 +20,25 @@ defined('ABSPATH') || exit;
                 type="text" 
                 id="cardNumber" 
                 name="cardNumber" 
+                data-checkout="cardNumber"
                 placeholder="0000 0000 0000 0000"
-                autocomplete="cc-number"
+                autocomplete="off"
                 style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
                 required
             />
-            <!-- Issuer select será inserido aqui pelo SDK -->
+        </div>
+        
+        <!-- Issuer (será preenchido dinamicamente) -->
+        <div class="form-group" style="margin-bottom: 20px; display: none;" id="issuerGroup">
+            <label for="issuerInput" style="display: block; margin-bottom: 8px; font-weight: 600;">
+                <?php _e('Banco Emissor', 'rodust-ecommerce'); ?>
+            </label>
             <select 
                 id="issuerInput" 
                 name="issuer"
-                style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; margin-top: 10px; display: none;"
+                style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
             >
-                <option value="">Banco emissor</option>
+                <option value="">Selecione...</option>
             </select>
         </div>
 
@@ -44,8 +51,9 @@ defined('ABSPATH') || exit;
                 type="text" 
                 id="cardholderName" 
                 name="cardholderName"
+                data-checkout="cardholderName"
                 placeholder="Como está no cartão"
-                autocomplete="cc-name"
+                autocomplete="off"
                 style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
                 required
             />
@@ -61,8 +69,9 @@ defined('ABSPATH') || exit;
                     type="text" 
                     id="cardExpirationDate" 
                     name="cardExpirationDate"
+                    data-checkout="cardExpirationDate"
                     placeholder="MM/AA"
-                    autocomplete="cc-exp"
+                    autocomplete="off"
                     maxlength="5"
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
                     required
@@ -77,8 +86,9 @@ defined('ABSPATH') || exit;
                     type="text" 
                     id="securityCode" 
                     name="securityCode"
+                    data-checkout="securityCode"
                     placeholder="123"
-                    autocomplete="cc-csc"
+                    autocomplete="off"
                     maxlength="4"
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
                     required
@@ -95,8 +105,10 @@ defined('ABSPATH') || exit;
                 type="text" 
                 id="cardholderDocument" 
                 name="cardholderDocument"
+                data-checkout="identificationNumber"
                 placeholder="000.000.000-00"
                 maxlength="14"
+                autocomplete="off"
                 style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
                 required
             />
