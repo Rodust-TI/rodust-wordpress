@@ -89,6 +89,14 @@ class Rodust_Settings {
         );
 
         add_settings_field(
+            'laravel_public_url',
+            __('URL Pública do Laravel', 'rodust-ecommerce'),
+            [$this, 'render_laravel_public_url_field'],
+            'rodust-ecommerce',
+            'rodust_api_section'
+        );
+
+        add_settings_field(
             'api_timeout',
             __('Timeout (segundos)', 'rodust-ecommerce'),
             [$this, 'render_timeout_field'],
@@ -186,8 +194,17 @@ class Rodust_Settings {
      */
     public function render_integrations_info_field() {
         $settings = $this->get_settings();
-        $api_url = $settings['api_url'] ?? rodust_plugin_get_api_url();
-        $base_url = rtrim(str_replace('/api', '', $api_url), '/');
+        
+        // Usar URL pública do Laravel se configurada, senão tenta construir da API URL
+        $laravel_url = $settings['laravel_public_url'] ?? null;
+        
+        if (empty($laravel_url)) {
+            // Fallback: tentar construir da API URL
+            $api_url = $settings['api_url'] ?? rodust_plugin_get_api_url();
+            $laravel_url = rtrim(str_replace('/api', '', $api_url), '/');
+        }
+        
+        $base_url = rtrim($laravel_url, '/');
         
         echo '<div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">';
         
@@ -249,12 +266,32 @@ class Rodust_Settings {
                class="regular-text"
                placeholder="<?php echo esc_attr(rodust_plugin_get_api_url()); ?>">
         <p class="description">
-            <?php _e('URL base da API Laravel (ex: http://localhost:8000/api ou https://api.rodust.com.br/api)', 'rodust-ecommerce'); ?>
+            <?php _e('URL da API usada para comunicação entre WordPress e Laravel (ex: http://laravel.test:8000/api)', 'rodust-ecommerce'); ?>
+            <br><strong>Nota:</strong> Use <code>http://laravel.test:8000/api</code> em Docker ou <code>http://localhost:8000/api</code> em instalação local.
         </p>
         <button type="button" class="button button-secondary" id="rodust-test-connection">
             <?php _e('Testar Conexão', 'rodust-ecommerce'); ?>
         </button>
         <span id="rodust-connection-status"></span>
+        <?php
+    }
+
+    /**
+     * Render Laravel public URL field
+     */
+    public function render_laravel_public_url_field() {
+        $settings = $this->get_settings();
+        $laravel_url = $settings['laravel_public_url'] ?? 'http://localhost:8000';
+        ?>
+        <input type="url" 
+               name="<?php echo self::OPTION_NAME; ?>[laravel_public_url]" 
+               value="<?php echo esc_attr($laravel_url); ?>" 
+               class="regular-text"
+               placeholder="http://localhost:8000">
+        <p class="description">
+            <?php _e('URL pública do Laravel acessível do seu navegador (ex: http://localhost:8000 ou https://laravel.rodust.com.br)', 'rodust-ecommerce'); ?>
+            <br><strong>Importante:</strong> Esta URL é usada para criar links para os painéis administrativos do Laravel.
+        </p>
         <?php
     }
 
