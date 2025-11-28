@@ -136,68 +136,20 @@ class Rodust_Settings {
             'rodust_display_section'
         );
 
-        // Seção: Melhor Envio
+        // Seção: Integrações Externas
         add_settings_section(
-            'rodust_shipping_section',
-            __('Melhor Envio (Frete)', 'rodust-ecommerce'),
-            [$this, 'render_shipping_section_description'],
+            'rodust_integrations_section',
+            __('Integrações Externas', 'rodust-ecommerce'),
+            [$this, 'render_integrations_section_description'],
             'rodust-ecommerce'
         );
 
         add_settings_field(
-            'origin_postal_code',
-            __('CEP de Origem', 'rodust-ecommerce'),
-            [$this, 'render_origin_postal_code_field'],
+            'integrations_info',
+            __('Painel de Configurações', 'rodust-ecommerce'),
+            [$this, 'render_integrations_info_field'],
             'rodust-ecommerce',
-            'rodust_shipping_section'
-        );
-
-        add_settings_field(
-            'melhorenvio_token',
-            __('Token API Melhor Envio', 'rodust-ecommerce'),
-            [$this, 'render_melhorenvio_token_field'],
-            'rodust-ecommerce',
-            'rodust_shipping_section'
-        );
-
-        add_settings_field(
-            'melhorenvio_sandbox',
-            __('Modo Sandbox', 'rodust-ecommerce'),
-            [$this, 'render_melhorenvio_sandbox_field'],
-            'rodust-ecommerce',
-            'rodust_shipping_section'
-        );
-
-        // Seção: Mercado Pago
-        add_settings_section(
-            'rodust_payment_section',
-            __('Mercado Pago (Pagamento)', 'rodust-ecommerce'),
-            [$this, 'render_payment_section_description'],
-            'rodust-ecommerce'
-        );
-
-        add_settings_field(
-            'mercadopago_access_token',
-            __('Access Token', 'rodust-ecommerce'),
-            [$this, 'render_mercadopago_access_token_field'],
-            'rodust-ecommerce',
-            'rodust_payment_section'
-        );
-
-        add_settings_field(
-            'mercadopago_public_key',
-            __('Public Key', 'rodust-ecommerce'),
-            [$this, 'render_mercadopago_public_key_field'],
-            'rodust-ecommerce',
-            'rodust_payment_section'
-        );
-
-        add_settings_field(
-            'mercadopago_sandbox',
-            __('Modo Sandbox', 'rodust-ecommerce'),
-            [$this, 'render_mercadopago_sandbox_field'],
-            'rodust-ecommerce',
-            'rodust_payment_section'
+            'rodust_integrations_section'
         );
     }
 
@@ -216,6 +168,71 @@ class Rodust_Settings {
      */
     public function render_sync_section_description() {
         echo '<p>' . __('Configure como os produtos são sincronizados com o Laravel.', 'rodust-ecommerce') . '</p>';
+    }
+
+    /**
+     * Render integrations section description
+     */
+    public function render_integrations_section_description() {
+        echo '<p>' . __('Configurações de pagamento e frete são gerenciadas no servidor Laravel por segurança.', 'rodust-ecommerce') . '</p>';
+        echo '<p style="background: #e7f3ff; padding: 15px; border-left: 4px solid #2196F3; margin-top: 10px;">';
+        echo '<strong>🔒 Segurança:</strong> Credenciais de APIs externas (Mercado Pago, Melhor Envio, Bling) ficam no arquivo <code>.env</code> do Laravel.<br>';
+        echo 'Isso garante que informações sensíveis não fiquem expostas no banco de dados do WordPress.';
+        echo '</p>';
+    }
+
+    /**
+     * Render integrations info field
+     */
+    public function render_integrations_info_field() {
+        $api_url = $this->get_setting('api_url', rodust_plugin_get_api_url());
+        $base_url = rtrim(str_replace('/api', '', $api_url), '/');
+        
+        echo '<div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 4px;">';
+        
+        echo '<h3 style="margin-top: 0;">🎛️ Painéis Administrativos Laravel</h3>';
+        echo '<p>Acesse os painéis do Laravel para gerenciar integrações:</p>';
+        
+        echo '<table class="widefat" style="margin-top: 15px;">';
+        echo '<thead><tr><th>Integração</th><th>O que gerencia</th><th>Ação</th></tr></thead>';
+        echo '<tbody>';
+        
+        // Bling
+        echo '<tr>';
+        echo '<td><strong>🔗 Bling (ERP)</strong></td>';
+        echo '<td>Sincronização de produtos, clientes e pedidos</td>';
+        echo '<td><a href="' . esc_url($base_url . '/bling') . '" class="button button-primary" target="_blank">Abrir Painel Bling</a></td>';
+        echo '</tr>';
+        
+        // Mercado Pago (futuro)
+        echo '<tr>';
+        echo '<td><strong>💳 Mercado Pago</strong></td>';
+        echo '<td>Credenciais de pagamento (sandbox/produção)</td>';
+        echo '<td><a href="' . esc_url($base_url . '/admin/integrations/mercadopago') . '" class="button" target="_blank" disabled>Em breve</a></td>';
+        echo '</tr>';
+        
+        // Melhor Envio (futuro)
+        echo '<tr>';
+        echo '<td><strong>📦 Melhor Envio</strong></td>';
+        echo '<td>Credenciais de frete (sandbox/produção)</td>';
+        echo '<td><a href="' . esc_url($base_url . '/admin/integrations/melhorenvio') . '" class="button" target="_blank" disabled>Em breve</a></td>';
+        echo '</tr>';
+        
+        // Admin geral (futuro)
+        echo '<tr style="background: #f9f9f9;">';
+        echo '<td><strong>⚙️ Painel Admin Completo</strong></td>';
+        echo '<td>Todas as configurações do sistema</td>';
+        echo '<td><a href="' . esc_url($base_url . '/admin') . '" class="button button-secondary" target="_blank" disabled>Em breve</a></td>';
+        echo '</tr>';
+        
+        echo '</tbody></table>';
+        
+        echo '<div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107;">';
+        echo '<strong>📝 Nota:</strong> Os painéis em "Em breve" serão implementados nas próximas versões.<br>';
+        echo 'Por enquanto, configure diretamente no arquivo <code>.env</code> do Laravel.';
+        echo '</div>';
+        
+        echo '</div>';
     }
 
     /**
