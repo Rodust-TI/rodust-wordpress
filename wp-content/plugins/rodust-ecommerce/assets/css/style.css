@@ -1,0 +1,98 @@
+/* Rodust Ecommerce Frontend Styles */
+.rodust-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.rodust-product-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; }
+.rodust-product-card img { max-width: 100%; height: auto; margin-bottom: 10px; }
+.rodust-product-card .price { font-size: 1.2em; font-weight: bold; color: #2c3e50; }
+.rodust-product-card button { background: #3498db; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; }
+.rodust-product-card button:hover { background: #2980b9; }
+
+/* Notificações */
+.rodust-notice {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    background: white;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 4px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 300px;
+    max-width: 500px;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s ease;
+}
+
+.rodust-notice.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.rodust-notice-success {
+    border-left-color: #27ae60;
+    background: #d4edda;
+    color: #155724;
+}
+
+.rodust-notice-error {
+    border-left-color: #e74c3c;
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.rodust-notice-warning {
+    border-left-color: #f39c12;
+    background: #fff3cd;
+    color: #856404;
+}
+
+.rodust-notice-info {
+    border-left-color: #3498db;
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.rodust-notice .notice-message {
+    flex: 1;
+    font-weight: 500;
+}
+
+.rodust-notice .notice-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.rodust-notice .notice-close:hover {
+    opacity: 1;
+}
+
+/* Spinner de carregamento */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+

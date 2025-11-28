@@ -1,0 +1,58 @@
+# WordPress Core Files
+/wp-admin/
+/wp-includes/
+/wp-*.php
+/xmlrpc.php
+/license.txt
+/readme.html
+/wp-config-sample.php
+/index.php
+
+# Configuração sensível
+wp-config.php
+
+# Uploads e Cache
+/wp-content/uploads/
+/wp-content/upgrade/
+/wp-content/cache/
+/wp-content/backup*/
+/wp-content/backups/
+/wp-content/blogs.dir/
+/wp-content/debug.log
+/wp-content/package-lock.json
+
+# Plugins padrão WordPress
+/wp-content/plugins/akismet/
+/wp-content/plugins/hello.php
+/wp-content/plugins/index.php
+
+# Temas padrão WordPress
+/wp-content/themes/twenty*/
+/wp-content/themes/index.php
+
+# Node modules (Tailwind CSS)
+/wp-content/themes/rodust/node_modules/
+
+# Linguagens
+/wp-content/languages/
+
+# MU Plugins (se houver)
+/wp-content/mu-plugins/
+
+# Scripts temporários de debug
+test-*.php
+ativar-plugin*.php
+flush-*.php
+limpar-*.php
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+.htaccess
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

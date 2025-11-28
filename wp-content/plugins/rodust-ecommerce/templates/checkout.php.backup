@@ -1,0 +1,1535 @@
+<?php
+/**
+ * Template: Checkout Page
+ * 
+ * Shortcode: [rodust_checkout]
+ *
+ * @package RodustEcommerce
+ */
+
+defined('ABSPATH') || exit;
+
+$cart = Rodust_Cart_Manager::instance();
+
+if ($cart->is_empty()) {
+    echo '<div class="empty-cart-notice">';
+    echo '<p>' . __('Seu carrinho está vazio. Adicione produtos antes de finalizar a compra.', 'rodust-ecommerce') . '</p>';
+    echo '<a href="' . get_post_type_archive_link('rodust_product') . '" class="btn btn-primary">' . __('Ver Produtos', 'rodust-ecommerce') . '</a>';
+    echo '</div>';
+    return;
+}
+
+$cart_items = $cart->get_cart();
+$subtotal = $cart->get_subtotal();
+?>
+
+<div class="rodust-checkout">
+    <div class="container">
+        
+        <h1 class="page-title"><?php _e('Finalizar Compra', 'rodust-ecommerce'); ?></h1>
+        
+        <div class="checkout-layout">
+            
+            <!-- Formulário de Checkout -->
+            <div class="checkout-form-section">
+                
+                <form id="checkout-form" method="post">
+                    
+                    <!-- Dados do Cliente -->
+                    <div class="checkout-section">
+                        <h2><?php _e('Dados Pessoais', 'rodust-ecommerce'); ?></h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_name"><?php _e('Nome Completo', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="customer_name" name="customer_name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_email"><?php _e('E-mail', 'rodust-ecommerce'); ?> *</label>
+                                <input type="email" id="customer_email" name="customer_email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="customer_phone"><?php _e('Telefone', 'rodust-ecommerce'); ?> *</label>
+                                <input type="tel" id="customer_phone" name="customer_phone" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Seleção de Documento -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><?php _e('Tipo de Documento', 'rodust-ecommerce'); ?> *</label>
+                                <div class="document-type-selector">
+                                    <label class="document-option">
+                                        <input type="radio" name="document_type" value="cpf" checked>
+                                        <span>CPF (Pessoa Física)</span>
+                                    </label>
+                                    <label class="document-option" id="cnpj-option">
+                                        <input type="radio" name="document_type" value="cnpj">
+                                        <span>CNPJ (Pessoa Jurídica)</span>
+                                    </label>
+                                </div>
+                                <small id="cnpj-warning" class="text-muted hidden">
+                                    ⚠️ <?php _e('Para emitir NF-e como PJ, cadastre CNPJ, Inscrição Estadual e Estado no seu perfil', 'rodust-ecommerce'); ?>
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_document" id="document-label"><?php _e('CPF', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="customer_document" name="customer_document" required readonly>
+                                <small class="text-muted"><?php _e('Documento cadastrado no seu perfil', 'rodust-ecommerce'); ?></small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Endereço de Entrega -->
+                    <div class="checkout-section">
+                        <h2><?php _e('Endereço de Entrega', 'rodust-ecommerce'); ?></h2>
+                        
+                        <!-- Box Endereço Selecionado (visível quando há endereço padrão) -->
+                        <div id="selected-address-box" style="display: none;">
+                            <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <p style="margin: 0 0 4px 0; font-weight: 600;" id="selected-address-label"></p>
+                                        <p style="margin: 0 0 2px 0; font-size: 14px;" id="selected-address-line1"></p>
+                                        <p style="margin: 0; font-size: 14px; color: #666;" id="selected-address-line2"></p>
+                                    </div>
+                                    <button type="button" id="btn-change-address" style="background: #fff; border: 1px solid #ddd; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                                        <?php _e('Trocar endereço', 'rodust-ecommerce'); ?>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lista de Endereços (oculta inicialmente) -->
+                        <div id="addresses-list-section" style="display: none; margin-bottom: 20px;">
+                            <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; background: #fff;">
+                                <h3 style="margin-top: 0; font-size: 16px;"><?php _e('Selecione um endereço', 'rodust-ecommerce'); ?></h3>
+                                <div id="addresses-list"></div>
+                                <button type="button" id="btn-add-new-address" style="margin-top: 12px; background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; width: 100%;">
+                                    + <?php _e('Adicionar outro endereço', 'rodust-ecommerce'); ?>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Formulário de Novo Endereço (oculto inicialmente) -->
+                        <!-- Formulário de Novo Endereço (oculto inicialmente) -->
+                        <div id="address-form-section">
+                        
+                        <div class="form-row">
+                            <div class="form-group form-group-small">
+                                <label for="postal_code"><?php _e('CEP', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="postal_code" name="postal_code" maxlength="9" required>
+                                <button type="button" id="search-postal-code" class="btn-link"><?php _e('Buscar CEP', 'rodust-ecommerce'); ?></button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group form-group-large">
+                                <label for="street"><?php _e('Endereço', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="street" name="street" required>
+                            </div>
+                            
+                            <div class="form-group form-group-small">
+                                <label for="number"><?php _e('Número', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="number" name="number" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="complement"><?php _e('Complemento', 'rodust-ecommerce'); ?></label>
+                                <input type="text" id="complement" name="complement">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="neighborhood"><?php _e('Bairro', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="neighborhood" name="neighborhood" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city"><?php _e('Cidade', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="city" name="city" required>
+                            </div>
+                            
+                            <div class="form-group form-group-small">
+                                <label for="state"><?php _e('Estado', 'rodust-ecommerce'); ?> *</label>
+                                <select id="state" name="state" required>
+                                    <option value="">Selecione</option>
+                                    <option value="AC">AC</option>
+                                    <option value="AL">AL</option>
+                                    <option value="AP">AP</option>
+                                    <option value="AM">AM</option>
+                                    <option value="BA">BA</option>
+                                    <option value="CE">CE</option>
+                                    <option value="DF">DF</option>
+                                    <option value="ES">ES</option>
+                                    <option value="GO">GO</option>
+                                    <option value="MA">MA</option>
+                                    <option value="MT">MT</option>
+                                    <option value="MS">MS</option>
+                                    <option value="MG">MG</option>
+                                    <option value="PA">PA</option>
+                                    <option value="PB">PB</option>
+                                    <option value="PR">PR</option>
+                                    <option value="PE">PE</option>
+                                    <option value="PI">PI</option>
+                                    <option value="RJ">RJ</option>
+                                    <option value="RN">RN</option>
+                                    <option value="RS">RS</option>
+                                    <option value="RO">RO</option>
+                                    <option value="RR">RR</option>
+                                    <option value="SC">SC</option>
+                                    <option value="SP">SP</option>
+                                    <option value="SE">SE</option>
+                                    <option value="TO">TO</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Salvar Endereço -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" id="save_address" name="save_address" value="1">
+                                    <span><?php _e('Salvar este endereço para próximas compras', 'rodust-ecommerce'); ?></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        </div><!-- Fim #address-form-section -->
+                    </div>
+                    
+                    <!-- Frete / Entrega -->
+                    <div class="checkout-section" id="shipping-section">
+                        <h2><?php _e('Frete e Entrega', 'rodust-ecommerce'); ?></h2>
+                        
+                        <!-- Status do cálculo -->
+                        <div id="shipping-status" style="display: none; padding: 12px; border-radius: 6px; margin-bottom: 16px;">
+                            <p style="margin: 0; font-size: 14px;"></p>
+                        </div>
+                        
+                        <!-- Botão calcular frete (aparece se não tiver CEP) -->
+                        <div id="shipping-calculate-prompt" style="display: none; padding: 16px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; margin-bottom: 16px;">
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: #856404;">
+                                <strong>📦 Calcule o frete</strong><br>
+                                Informe seu CEP de entrega para calcular o frete.
+                            </p>
+                            <button type="button" id="btn-calculate-shipping" class="btn btn-primary">
+                                Calcular Frete
+                            </button>
+                        </div>
+                        
+                        <!-- Loader -->
+                        <div id="shipping-loader" style="display: none; text-align: center; padding: 20px;">
+                            <div class="spinner"></div>
+                            <p style="margin-top: 12px; color: #666;">Calculando opções de frete...</p>
+                        </div>
+                        
+                        <!-- Opções de frete -->
+                        <div id="shipping-options" style="display: none;">
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">
+                                Selecione a forma de entrega:
+                            </p>
+                            <div id="shipping-options-list"></div>
+                        </div>
+                    </div>
+                    
+                </form>
+                
+                <!-- Modal: Adicionar Novo Endereço -->
+                <div id="new-address-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+                    <div style="background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                        <div style="padding: 20px; border-bottom: 1px solid #e0e0e0;">
+                            <h3 style="margin: 0; font-size: 20px;"><?php _e('Adicionar Novo Endereço', 'rodust-ecommerce'); ?></h3>
+                        </div>
+                        
+                        <div id="new-address-form" style="padding: 20px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('CEP', 'rodust-ecommerce'); ?> *</label>
+                                <input type="text" id="modal_postal_code" maxlength="9" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                <button type="button" id="modal-search-postal-code" style="margin-top: 8px; background: transparent; border: none; color: #007bff; cursor: pointer; padding: 0; font-size: 14px;"><?php _e('Buscar CEP', 'rodust-ecommerce'); ?></button>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('Logradouro', 'rodust-ecommerce'); ?> *</label>
+                                    <input type="text" id="modal_street" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('Número', 'rodust-ecommerce'); ?> *</label>
+                                    <input type="text" id="modal_number" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('Complemento', 'rodust-ecommerce'); ?></label>
+                                    <input type="text" id="modal_complement" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('Bairro', 'rodust-ecommerce'); ?> *</label>
+                                    <input type="text" id="modal_neighborhood" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('Cidade', 'rodust-ecommerce'); ?> *</label>
+                                    <input type="text" id="modal_city" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('UF', 'rodust-ecommerce'); ?> *</label>
+                                    <select id="modal_state" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                        <option value="">Selecione</option>
+                                        <option value="AC">AC</option>
+                                        <option value="AL">AL</option>
+                                        <option value="AP">AP</option>
+                                        <option value="AM">AM</option>
+                                        <option value="BA">BA</option>
+                                        <option value="CE">CE</option>
+                                        <option value="DF">DF</option>
+                                        <option value="ES">ES</option>
+                                        <option value="GO">GO</option>
+                                        <option value="MA">MA</option>
+                                        <option value="MT">MT</option>
+                                        <option value="MS">MS</option>
+                                        <option value="MG">MG</option>
+                                        <option value="PA">PA</option>
+                                        <option value="PB">PB</option>
+                                        <option value="PR">PR</option>
+                                        <option value="PE">PE</option>
+                                        <option value="PI">PI</option>
+                                        <option value="RJ">RJ</option>
+                                        <option value="RN">RN</option>
+                                        <option value="RS">RS</option>
+                                        <option value="RO">RO</option>
+                                        <option value="RR">RR</option>
+                                        <option value="SC">SC</option>
+                                        <option value="SP">SP</option>
+                                        <option value="SE">SE</option>
+                                        <option value="TO">TO</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 4px; font-weight: 500;"><?php _e('Identificação (opcional)', 'rodust-ecommerce'); ?></label>
+                                <input type="text" id="modal_label" placeholder="Ex: Casa, Trabalho..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 16px 20px; border-top: 1px solid #e0e0e0; display: flex; gap: 12px;">
+                            <button type="button" id="btn-save-new-address" style="flex: 1; background: #007bff; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                                <?php _e('Salvar Endereço', 'rodust-ecommerce'); ?>
+                            </button>
+                            <button type="button" id="btn-cancel-new-address" style="padding: 12px 24px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                                <?php _e('Cancelar', 'rodust-ecommerce'); ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Resumo do Pedido -->
+            <div class="order-summary-section">
+                <div class="order-summary sticky">
+                    <h2><?php _e('Resumo do Pedido', 'rodust-ecommerce'); ?></h2>
+                    
+                    <div class="order-items">
+                        <?php foreach ($cart_items as $item) : ?>
+                            <div class="order-item">
+                                <?php if ($item['image']) : ?>
+                                    <img src="<?php echo esc_url($item['image']); ?>" alt="<?php echo esc_attr($item['name']); ?>">
+                                <?php endif; ?>
+                                <div class="item-details">
+                                    <strong><?php echo esc_html($item['name']); ?></strong>
+                                    <span class="quantity">Qtd: <?php echo esc_html($item['quantity']); ?></span>
+                                </div>
+                                <div class="item-price">
+                                    R$ <?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <div class="order-totals">
+                        <div class="total-row">
+                            <span><?php _e('Subtotal', 'rodust-ecommerce'); ?></span>
+                            <span class="subtotal-value">R$ <?php echo number_format($subtotal, 2, ',', '.'); ?></span>
+                        </div>
+                        
+                        <div class="total-row shipping-row">
+                            <span><?php _e('Frete', 'rodust-ecommerce'); ?></span>
+                            <span class="shipping-value">A calcular</span>
+                        </div>
+                        
+                        <div class="total-row total-row-final">
+                            <strong><?php _e('Total', 'rodust-ecommerce'); ?></strong>
+                            <strong class="total-value">R$ <?php echo number_format($subtotal, 2, ',', '.'); ?></strong>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="btn-continue-payment" class="btn-continue-payment" disabled>
+                        <span class="btn-text">Continuar para Pagamento</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    
+                    <div class="security-badges">
+                        <p>
+                            <span class="icon">🔒</span>
+                            <?php _e('Pagamento 100% seguro', 'rodust-ecommerce'); ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+</div>
+
+<style>
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+    margin: 40px 0;
+}
+
+@media (max-width: 968px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.checkout-section {
+    background: #fff;
+    padding: 30px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.checkout-section h2 {
+    margin: 0 0 20px;
+    font-size: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-row:last-child {
+    margin-bottom: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-large {
+    grid-column: span 2;
+}
+
+.form-group-small {
+    grid-column: span 1;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #2196F3;
+}
+
+.form-group input.error {
+    border-color: #f44336;
+}
+
+.order-summary {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.order-summary.sticky {
+    position: sticky;
+    top: 20px;
+}
+
+.order-items {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.order-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.order-item .item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-item .quantity {
+    font-size: 12px;
+    color: #999;
+}
+
+.order-totals {
+    padding: 20px 0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.total-row-final {
+    padding-top: 15px;
+    border-top: 2px solid #333;
+    font-size: 1.2em;
+}
+
+.btn-submit-checkout {
+    width: 100%;
+    padding: 18px;
+    font-size: 18px;
+}
+
+/* Shipping Options */
+.shipping-option {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+}
+
+.shipping-option:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+}
+
+.shipping-option.selected {
+    border-color: #007bff;
+    background: #f0f8ff;
+}
+
+.shipping-option input[type="radio"] {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.shipping-option-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: #fff;
+    padding: 4px;
+}
+
+.shipping-option-info {
+    flex: 1;
+}
+
+.shipping-option-name {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.shipping-option-company {
+    font-size: 13px;
+    color: #666;
+}
+
+.shipping-option-delivery {
+    font-size: 13px;
+    color: #28a745;
+    margin-top: 4px;
+}
+
+.shipping-option-price {
+    text-align: right;
+}
+
+.shipping-option-price-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.shipping-option-price-discount {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.document-type-selector {
+    display: flex;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.document-option {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.document-option:hover {
+    border-color: #007bff;
+}
+
+.document-option input[type="radio"] {
+    margin: 0;
+}
+
+.document-option input[type="radio"]:checked + span {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.document-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f5f5f5;
+}
+
+.text-muted {
+    color: #666;
+    font-size: 13px;
+    display: block;
+    margin-top: 5px;
+}
+
+.btn-continue-payment {
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-continue-payment:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-continue-payment:disabled {
+    background: #e0e0e0;
+    color: #9e9e9e;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-continue-payment .btn-arrow {
+    font-size: 24px;
+    transition: transform 0.3s ease;
+}
+
+.btn-continue-payment:hover:not(:disabled) .btn-arrow {
+    transform: translateX(4px);
+}
+
+.hidden {
+    display: none !important;
+}
+</style>
+
+<script>
+// Dados do carrinho do WordPress
+const CHECKOUT_CART_ITEMS = <?php 
+    // Garantir que $cart_items seja um array válido
+    if (!is_array($cart_items) || empty($cart_items)) {
+        echo '[]';
+    } else {
+        $js_cart = array_map(function($item) {
+            $product_id = $item['product_id'];
+            $product = get_post($product_id);
+            
+            // Buscar dimensões e peso dos custom fields do produto
+            $width = get_post_meta($product_id, '_product_width', true) ?: 11; // cm - padrão se não existir
+            $height = get_post_meta($product_id, '_product_height', true) ?: 2; // cm
+            $length = get_post_meta($product_id, '_product_length', true) ?: 17; // cm
+            $weight = get_post_meta($product_id, '_product_weight', true) ?: 0.3; // kg
+            
+            return [
+                'id' => $product_id,
+                'name' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'width' => floatval($width),
+                'height' => floatval($height),
+                'length' => floatval($length),
+                'weight' => floatval($weight),
+            ];
+        }, $cart_items);
+        
+        // Forçar array sequencial (não objeto) para garantir que JSON seja array
+        echo json_encode(array_values($js_cart), JSON_UNESCAPED_UNICODE);
+    }
+?>;
+
+console.log('Carrinho carregado:', CHECKOUT_CART_ITEMS);
+</script>
+
+<script>
+jQuery(document).ready(function($) {
+    let customerData = null;
+    let savedAddresses = [];
+    
+    // Função para exibir toast/alert
+    function showToast(message, type = 'info') {
+        // Tipo pode ser: 'success', 'error', 'info', 'warning'
+        alert(message); // Temporário - depois substituir por toast mais elegante
+    }
+    
+    // Buscar dados do cliente logado
+    function loadCustomerData() {
+        const token = sessionStorage.getItem('customer_token');
+        
+        if (!token) {
+            // Salvar URL atual para redirecionar após login
+            sessionStorage.setItem('redirect_after_login', window.location.href);
+            alert('Você precisa estar logado para finalizar a compra.');
+            window.location.href = '<?php echo home_url('/login'); ?>';
+            return;
+        }
+        
+        // Buscar dados do cliente
+        $.ajax({
+            url: window.RODUST_API_URL + '/api/customers/me',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json'
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    customerData = response.data;
+                    populateCustomerData();
+                    loadSavedAddresses();
+                }
+            },
+            error: function() {
+                // Salvar URL atual para redirecionar após login
+                sessionStorage.setItem('redirect_after_login', window.location.href);
+                alert('Erro ao carregar dados do cliente. Faça login novamente.');
+                window.location.href = '<?php echo home_url('/login'); ?>';
+            }
+        });
+    }
+    
+    // Preencher formulário com dados do cliente
+    function populateCustomerData() {
+        $('#customer_name').val(customerData.name || '');
+        $('#customer_email').val(customerData.email || '');
+        $('#customer_phone').val(customerData.phone || '');
+        
+        // Verificar se tem CPF e/ou CNPJ
+        const hasCPF = customerData.cpf && customerData.cpf.length === 11;
+        const hasCNPJ = customerData.cnpj && customerData.cnpj.length === 14;
+        const hasIE = customerData.state_registration && customerData.state_registration.length === 12;
+        const hasUF = customerData.state_uf && customerData.state_uf.length === 2;
+        
+        // Configurar opções de documento
+        if (hasCPF) {
+            $('input[name="document_type"][value="cpf"]').prop('checked', true);
+            $('#customer_document').val(formatCPF(customerData.cpf));
+            $('#document-label').text('CPF *');
+        }
+        
+        // CNPJ só habilitado se tiver CNPJ + IE + UF (exigência Bling)
+        if (!hasCNPJ || !hasIE || !hasUF) {
+            // Desabilitar opção CNPJ
+            $('#cnpj-option').addClass('disabled');
+            $('#cnpj-option input').prop('disabled', true);
+            $('#cnpj-warning').removeClass('hidden');
+        } else {
+            // Habilitar opção CNPJ
+            $('#cnpj-option').removeClass('disabled');
+            $('#cnpj-option input').prop('disabled', false);
+        }
+        
+        // Controlar mudança de tipo de documento
+        $('input[name="document_type"]').on('change', function() {
+            const docType = $(this).val();
+            
+            if (docType === 'cpf' && hasCPF) {
+                $('#customer_document').val(formatCPF(customerData.cpf));
+                $('#document-label').text('CPF *');
+            } else if (docType === 'cnpj' && hasCNPJ) {
+                $('#customer_document').val(formatCNPJ(customerData.cnpj));
+                $('#document-label').text('CNPJ *');
+            }
+        });
+    }
+    
+    // Buscar endereços salvos
+    function loadSavedAddresses() {
+        const token = sessionStorage.getItem('customer_token');
+        
+        $.ajax({
+            url: window.RODUST_API_URL + '/api/customers/addresses',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json'
+            },
+            success: function(response) {
+                if (response.success && response.data.addresses) {
+                    savedAddresses = response.data.addresses;
+                    displayAddresses();
+                }
+            },
+            error: function(xhr) {
+                console.error('Erro ao carregar endereços:', xhr);
+            }
+        });
+    }
+    
+    // Exibir endereços: box com padrão ou formulário
+    function displayAddresses() {
+        // Procurar endereço de entrega (is_shipping = true)
+        const shippingAddress = savedAddresses.find(addr => addr.is_shipping === true || addr.is_shipping === 1);
+        
+        if (shippingAddress) {
+            // Mostrar box com endereço selecionado
+            showSelectedAddress(shippingAddress);
+        } else if (savedAddresses.length > 0) {
+            // Se não tem endereço de entrega mas tem endereços, mostrar lista
+            showAddressesList();
+        } else {
+            // Se não tem nenhum endereço, mostrar formulário
+            $('#selected-address-box').hide();
+            $('#addresses-list-section').hide();
+            $('#address-form-section').show();
+        }
+    }
+    
+    // Mostrar box com endereço selecionado
+    function showSelectedAddress(address) {
+        const label = address.label || 'Endereço de Entrega';
+        const line1 = `${address.address}, ${address.number}${address.complement ? ' - ' + address.complement : ''}`;
+        const line2 = `${address.neighborhood} - ${address.city}/${address.state} - CEP ${formatCEP(address.zipcode)}`;
+        
+        $('#selected-address-label').text(label);
+        $('#selected-address-line1').text(line1);
+        $('#selected-address-line2').text(line2);
+        
+        // Preencher campos do formulário principal com endereço selecionado
+        fillAddressFields(address);
+        
+        $('#selected-address-box').show();
+        $('#addresses-list-section').hide();
+        $('#address-form-section').hide();
+        
+        // Mostrar prompt para calcular frete
+        $('#shipping-calculate-prompt').show();
+        $('#shipping-options').hide();
+        selectedShipping = null;
+        updateOrderTotal();
+    }
+    
+    // Preencher campos do formulário
+    function fillAddressFields(address) {
+        $('#postal_code').val(formatCEP(address.zipcode));
+        $('#street').val(address.address);
+        $('#number').val(address.number);
+        $('#complement').val(address.complement || '');
+        $('#neighborhood').val(address.neighborhood);
+        $('#city').val(address.city);
+        $('#state').val(address.state);
+    }
+    
+    // Mostrar lista de endereços
+    function showAddressesList() {
+        const $list = $('#addresses-list');
+        $list.empty();
+        
+        if (savedAddresses.length === 0) {
+            $list.html('<p style="color: #666; text-align: center; padding: 20px;">Nenhum endereço cadastrado</p>');
+        } else {
+            savedAddresses.forEach(function(addr) {
+                const isShipping = addr.is_shipping === true || addr.is_shipping === 1;
+                const isBilling = addr.is_billing === true || addr.is_billing === 1;
+                
+                let badge = '';
+                if (isShipping) badge += '<span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-right: 4px;">ENTREGA</span>';
+                if (isBilling) badge += '<span style="background: #f8d7da; color: #721c24; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;">COBRANÇA</span>';
+                
+                const label = addr.label || (isShipping ? 'Endereço de Entrega' : (isBilling ? 'Endereço de Cobrança' : 'Endereço'));
+                const line1 = `${addr.address}, ${addr.number}${addr.complement ? ' - ' + addr.complement : ''}`;
+                const line2 = `${addr.neighborhood} - ${addr.city}/${addr.state}`;
+                
+                const html = `
+                    <div style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.2s;" 
+                         data-address-id="${addr.id}"
+                         onclick="selectAddress(${addr.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="margin-bottom: 4px;">
+                                    <strong>${label}</strong> ${badge}
+                                </div>
+                                <p style="margin: 2px 0; font-size: 14px;">${line1}</p>
+                                <p style="margin: 2px 0; font-size: 14px; color: #666;">${line2}</p>
+                                <p style="margin: 2px 0; font-size: 13px; color: #999;">CEP ${formatCEP(addr.zipcode)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $list.append(html);
+            });
+        }
+        
+        $('#selected-address-box').hide();
+        $('#addresses-list-section').show();
+        $('#address-form-section').hide();
+    }
+    
+    // Selecionar endereço da lista
+    window.selectAddress = function(addressId) {
+        const address = savedAddresses.find(a => a.id === addressId);
+        if (address) {
+            showSelectedAddress(address);
+        }
+    };
+    
+    // Botão "Trocar endereço"
+    $('#btn-change-address').on('click', function() {
+        showAddressesList();
+    });
+    
+    // Botão "Adicionar outro endereço"
+    $('#btn-add-new-address').on('click', function() {
+        openNewAddressModal();
+    });
+    
+    // Abrir modal de novo endereço
+    function openNewAddressModal() {
+        // Verificar limite de 5 endereços
+        if (savedAddresses.length >= 5) {
+            showToast('Limite atingido: 5 endereços. Para cadastrar um novo endereço é necessário apagar um endereço anterior.', 'error');
+            return;
+        }
+        
+        // Limpar campos
+        $('#modal_postal_code').val('');
+        $('#modal_street').val('');
+        $('#modal_number').val('');
+        $('#modal_complement').val('');
+        $('#modal_neighborhood').val('');
+        $('#modal_city').val('');
+        $('#modal_state').val('');
+        $('#modal_label').val('');
+        
+        $('#new-address-modal').css('display', 'flex');
+    }
+    
+    // Fechar modal
+    $('#btn-cancel-new-address').on('click', function() {
+        $('#new-address-modal').hide();
+    });
+    
+    // Buscar CEP no modal
+    $('#modal-search-postal-code').on('click', function() {
+        const zipcode = $('#modal_postal_code').val().replace(/\D/g, '');
+        
+        if (zipcode.length !== 8) {
+            showToast('Digite um CEP válido', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: window.RODUST_API_URL + '/api/addresses/search-zipcode/' + zipcode,
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    $('#modal_street').val(response.data.address);
+                    $('#modal_complement').val(response.data.complement);
+                    $('#modal_neighborhood').val(response.data.neighborhood);
+                    $('#modal_city').val(response.data.city);
+                    $('#modal_state').val(response.data.state);
+                    $('#modal_number').focus();
+                }
+            },
+            error: function() {
+                showToast('CEP não encontrado', 'error');
+            }
+        });
+    });
+    
+    // Máscara CEP no modal
+    $('#modal_postal_code').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length <= 8) {
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        $(this).val(value);
+    });
+    
+    // Salvar novo endereço
+    $('#btn-save-new-address').on('click', function() {
+        const zipcode = $('#modal_postal_code').val().replace(/\D/g, '');
+        
+        if (!zipcode || !$('#modal_street').val() || !$('#modal_number').val() || 
+            !$('#modal_neighborhood').val() || !$('#modal_city').val() || !$('#modal_state').val()) {
+            showToast('Preencha todos os campos obrigatórios', 'error');
+            return;
+        }
+        
+        const token = sessionStorage.getItem('customer_token');
+        const data = {
+            type: null, // Endereço adicional
+            label: $('#modal_label').val(),
+            zipcode: zipcode,
+            address: $('#modal_street').val(),
+            number: $('#modal_number').val(),
+            complement: $('#modal_complement').val(),
+            neighborhood: $('#modal_neighborhood').val(),
+            city: $('#modal_city').val(),
+            state: $('#modal_state').val(),
+            is_default: false
+        };
+        
+        $.ajax({
+            url: window.RODUST_API_URL + '/api/customers/addresses',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            data: JSON.stringify(data),
+            success: function(response) {
+                showToast('Endereço adicionado com sucesso!', 'success');
+                $('#new-address-modal').hide();
+                loadSavedAddresses(); // Recarregar lista
+            },
+            error: function(xhr) {
+                let errorMsg = 'Erro ao salvar endereço.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                showToast(errorMsg, 'error');
+            }
+        });
+    });
+    
+    // Formatar CEP
+    function formatCEP(cep) {
+        cep = cep.replace(/\D/g, '');
+        if (cep.length !== 8) return cep;
+        return cep.replace(/(\d{5})(\d{3})/, '$1-$2');
+    }
+    
+    // Formatar CPF
+    function formatCPF(cpf) {
+        cpf = cpf.replace(/\D/g, '');
+        if (cpf.length !== 11) return cpf;
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    
+    // Formatar CNPJ
+    function formatCNPJ(cnpj) {
+        cnpj = cnpj.replace(/\D/g, '');
+        if (cnpj.length !== 14) return cnpj;
+        return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+    
+    // Variável para armazenar frete selecionado
+    let selectedShipping = null;
+    
+    // Calcular frete
+    function calculateShipping() {
+        // Garantir que CHECKOUT_CART_ITEMS seja um array
+        if (!Array.isArray(CHECKOUT_CART_ITEMS)) {
+            console.error('CHECKOUT_CART_ITEMS não é um array:', CHECKOUT_CART_ITEMS);
+            showToast('Erro: Carrinho não carregado corretamente. Recarregue a página.', 'error');
+            return;
+        }
+        
+        // Obter CEP do endereço selecionado ou formulário
+        let postalCode = '';
+        
+        if ($('input[name="address_type"]:checked').val() === 'saved') {
+            const selectedAddress = savedAddresses.find(addr => addr.id == $('#selected-shipping-address').val());
+            if (selectedAddress) {
+                postalCode = selectedAddress.postal_code.replace(/\D/g, '');
+            }
+        } else {
+            postalCode = $('#postal_code').val().replace(/\D/g, '');
+        }
+        
+        if (!postalCode || postalCode.length !== 8) {
+            showToast('Informe um CEP válido para calcular o frete.', 'error');
+            return;
+        }
+        
+        // Verificar se há produtos no carrinho
+        if (!CHECKOUT_CART_ITEMS || CHECKOUT_CART_ITEMS.length === 0) {
+            showToast('Carrinho vazio. Adicione produtos para calcular o frete.', 'error');
+            return;
+        }
+        
+        // Preparar dados dos produtos com dimensões reais
+        const products = CHECKOUT_CART_ITEMS.map(item => ({
+            id: String(item.id),
+            width: item.width,
+            height: item.height,
+            length: item.length,
+            weight: item.weight,
+            quantity: item.quantity,
+            insurance_value: parseFloat(item.price)
+        }));
+        
+        console.log('Calculando frete para:', { postalCode, products });
+        
+        // Mostrar loader
+        $('#shipping-status').hide();
+        $('#shipping-calculate-prompt').hide();
+        $('#shipping-options').hide();
+        $('#shipping-loader').show();
+        
+        // Fazer chamada à API
+        $.ajax({
+            url: window.RODUST_API_URL + '/api/shipping/calculate',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                postal_code: postalCode,
+                products: products
+            }),
+            success: function(response) {
+                $('#shipping-loader').hide();
+                
+                if (response.success && response.data && response.data.length > 0) {
+                    renderShippingOptions(response.data);
+                } else {
+                    $('#shipping-status')
+                        .html('<p style="color: #dc3545;">Nenhuma opção de frete disponível para este CEP.</p>')
+                        .show();
+                }
+            },
+            error: function(xhr) {
+                $('#shipping-loader').hide();
+                
+                let errorMsg = 'Erro ao calcular frete. Tente novamente.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                
+                $('#shipping-status')
+                    .html(`<p style="color: #dc3545;">${errorMsg}</p>`)
+                    .show();
+            }
+        });
+    }
+    
+    // Renderizar opções de frete
+    function renderShippingOptions(options) {
+        console.log('Opções de frete recebidas:', options);
+        
+        const $list = $('#shipping-options-list');
+        $list.empty();
+        
+        options.forEach((option, index) => {
+            const isSelected = selectedShipping && selectedShipping.id === option.id;
+            
+            // Logo - API retorna company_logo diretamente
+            const logoUrl = option.company_logo || '/wp-content/plugins/rodust-ecommerce/assets/images/shipping-default.svg';
+            
+            // Nome da transportadora - API retorna company como string
+            const companyName = option.company || 'Transportadora';
+            
+            // Melhorar nome do serviço (adicionar transportadora se for genérico)
+            let serviceName = option.name;
+            if (serviceName === '.Com' || serviceName === '.Package') {
+                serviceName = `${companyName} ${serviceName}`;
+            }
+            
+            const $option = $(`
+                <div class="shipping-option ${isSelected ? 'selected' : ''}" data-shipping-id="${option.id}">
+                    <input type="radio" name="shipping_method" value="${option.id}" ${isSelected ? 'checked' : ''}>
+                    <img src="${logoUrl}" alt="${companyName}" class="shipping-option-logo" onerror="this.src='/wp-content/plugins/rodust-ecommerce/assets/images/shipping-default.svg'">
+                    <div class="shipping-option-info">
+                        <div class="shipping-option-name">${serviceName}</div>
+                        <div class="shipping-option-company">${companyName}</div>
+                        <div class="shipping-option-delivery">📦 ${option.delivery_time} dias úteis</div>
+                    </div>
+                    <div class="shipping-option-price">
+                        <div class="shipping-option-price-value">R$ ${parseFloat(option.price).toFixed(2).replace('.', ',')}</div>
+                    </div>
+                </div>
+            `);
+            
+            // Adicionar evento de clique
+            $option.on('click', function() {
+                $('.shipping-option').removeClass('selected');
+                $(this).addClass('selected');
+                $(this).find('input[type="radio"]').prop('checked', true);
+                
+                selectedShipping = {
+                    id: option.id,
+                    name: serviceName, // Nome completo já formatado
+                    company: companyName, // Nome da empresa como string
+                    company_logo: logoUrl,
+                    price: parseFloat(option.price),
+                    delivery_time: option.delivery_time
+                };
+                
+                updateOrderTotal();
+                enableContinueButton();
+            });
+            
+            $list.append($option);
+        });
+        
+        $('#shipping-options').show();
+    }
+    
+    // Habilitar/desabilitar botão de continuar
+    function enableContinueButton() {
+        const hasShipping = selectedShipping !== null;
+        const hasAddress = $('#selected-shipping-address').val() || 
+                          ($('#postal_code').val() && $('#postal_code').val().replace(/\D/g, '').length === 8);
+        
+        if (hasShipping && hasAddress) {
+            $('#btn-continue-payment').prop('disabled', false);
+        } else {
+            $('#btn-continue-payment').prop('disabled', true);
+        }
+    }
+    
+    // Atualizar total do pedido com frete
+    function updateOrderTotal() {
+        // Obter subtotal do carrinho WordPress
+        const subtotal = CHECKOUT_CART_ITEMS.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+        
+        // Adicionar frete se selecionado
+        const shippingCost = selectedShipping ? selectedShipping.price : 0;
+        const total = subtotal + shippingCost;
+        
+        // Atualizar subtotal (já está correto no HTML)
+        $('.subtotal-value').text(`R$ ${subtotal.toFixed(2).replace('.', ',')}`);
+        
+        // Atualizar frete na sidebar
+        if (selectedShipping) {
+            $('.shipping-value').html(`
+                <span style="color: #10b981;">${selectedShipping.company}</span><br>
+                <strong>R$ ${shippingCost.toFixed(2).replace('.', ',')}</strong>
+            `);
+        } else {
+            $('.shipping-value').text('A calcular');
+        }
+        
+        // Atualizar total
+        $('.total-value').text(`R$ ${total.toFixed(2).replace('.', ',')}`);
+    }
+    
+    // Evento: calcular frete ao clicar no botão
+    $(document).on('click', '#btn-calculate-shipping', function() {
+        calculateShipping();
+    });
+    
+    // Evento: recalcular ao mudar endereço selecionado
+    $(document).on('change', '#selected-shipping-address', function() {
+        $('#shipping-calculate-prompt').show();
+        $('#shipping-options').hide();
+        selectedShipping = null;
+        updateOrderTotal();
+    });
+    
+    // Evento: mostrar botão calcular quando CEP for preenchido manualmente
+    $(document).on('input', '#postal_code', function() {
+        const cep = $(this).val().replace(/\D/g, '');
+        if (cep.length === 8) {
+            $('#shipping-calculate-prompt').show();
+        }
+    });
+    
+    // Evento: Continuar para Pagamento
+    $('#btn-continue-payment').on('click', function() {
+        if (!selectedShipping) {
+            showToast('Por favor, selecione uma opção de frete.', 'warning');
+            return;
+        }
+        
+        // Verificar se checkbox de salvar endereço está marcado
+        const shouldSaveAddress = $('#save-address').is(':checked');
+        
+        if (shouldSaveAddress && !$('#selected-shipping-address').val()) {
+            // Salvar endereço antes de continuar
+            saveNewAddress(function() {
+                // Após salvar, continuar para pagamento
+                proceedToPayment();
+            });
+        } else {
+            // Continuar direto para pagamento
+            proceedToPayment();
+        }
+    });
+    
+    // Função para salvar novo endereço
+    function saveNewAddress(callback) {
+        const token = sessionStorage.getItem('customer_token');
+        const zipcode = $('#postal_code').val().replace(/\D/g, '');
+        
+        const addressData = {
+            type: 'shipping',
+            label: $('#address_label').val() || 'Endereço de Entrega',
+            recipient_name: $('#recipient_name').val() || customerData.name,
+            zipcode: zipcode,
+            address: $('#street').val(),
+            number: $('#number').val(),
+            complement: $('#complement').val(),
+            neighborhood: $('#neighborhood').val(),
+            city: $('#city').val(),
+            state: $('#state').val()
+        };
+        
+        $.ajax({
+            url: window.RODUST_API_URL + '/api/customers/addresses',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            data: JSON.stringify(addressData),
+            success: function(response) {
+                showToast('Endereço salvo com sucesso!', 'success');
+                if (callback) callback();
+            },
+            error: function(xhr) {
+                console.error('Erro ao salvar endereço:', xhr);
+                // Continuar mesmo se falhar ao salvar
+                if (callback) callback();
+            }
+        });
+    }
+    
+    // Função para prosseguir para página de pagamento
+    function proceedToPayment() {
+        // Preparar dados do endereço
+        const shippingAddress = {
+            postal_code: $('#postal_code').val() || $('#selected-shipping-address option:selected').data('zipcode'),
+            street: $('#street').val() || $('#selected-shipping-address option:selected').data('street'),
+            number: $('#number').val() || $('#selected-shipping-address option:selected').data('number'),
+            complement: $('#complement').val() || $('#selected-shipping-address option:selected').data('complement'),
+            neighborhood: $('#neighborhood').val() || $('#selected-shipping-address option:selected').data('neighborhood'),
+            city: $('#city').val() || $('#selected-shipping-address option:selected').data('city'),
+            state: $('#state').val() || $('#selected-shipping-address option:selected').data('state')
+        };
+
+        // Salvar dados no sessionStorage para usar na próxima página
+        const checkoutData = {
+            customer: customerData,
+            shipping_address: shippingAddress,
+            shipping: selectedShipping,
+            cart: CHECKOUT_CART_ITEMS
+        };
+        
+        sessionStorage.setItem('checkout_data', JSON.stringify(checkoutData));
+
+        // Verificar se deve salvar o endereço no banco
+        const shouldSaveAddress = $('#save_address').is(':checked');
+        
+        if (shouldSaveAddress && customerData && customerData.token) {
+            // Salvar endereço via API antes de redirecionar
+            $.ajax({
+                url: window.RODUST_API_URL + '/api/customers/addresses',
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + customerData.token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                data: JSON.stringify({
+                    is_shipping: 1,
+                    is_billing: 0,
+                    label: 'Endereço Principal',
+                    zipcode: shippingAddress.postal_code.replace(/\D/g, ''),
+                    address: shippingAddress.street,
+                    number: shippingAddress.number,
+                    complement: shippingAddress.complement || null,
+                    neighborhood: shippingAddress.neighborhood,
+                    city: shippingAddress.city,
+                    state: shippingAddress.state,
+                    country: 'BR'
+                }),
+                success: function(response) {
+                    console.log('Endereço salvo e sincronizado com Bling:', response);
+                    // Redirecionar para página de pagamento
+                    window.location.href = '<?php echo home_url('/checkout-payment'); ?>';
+                },
+                error: function(xhr) {
+                    console.error('Erro ao salvar endereço:', xhr);
+                    // Mesmo com erro, continuar para o pagamento
+                    window.location.href = '<?php echo home_url('/checkout-payment'); ?>';
+                }
+            });
+        } else {
+            // Se não deve salvar ou não está logado, redirecionar direto
+            window.location.href = '<?php echo home_url('/checkout-payment'); ?>';
+        }
+    }
+    
+    // Inicializar
+    loadCustomerData();
+    
+    // Buscar CEP no formulário principal
+    $('#search-postal-code').on('click', function() {
+        const cep = $('#postal_code').val().replace(/\D/g, '');
+        
+        if (cep.length !== 8) {
+            showToast('CEP inválido. Digite 8 dígitos.', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: `https://viacep.com.br/ws/${cep}/json/`,
+            method: 'GET',
+            success: function(data) {
+                if (!data.erro) {
+                    $('#street').val(data.logradouro);
+                    $('#neighborhood').val(data.bairro);
+                    $('#city').val(data.localidade);
+                    $('#state').val(data.uf);
+                    $('#number').focus();
+                } else {
+                    showToast('CEP não encontrado.', 'error');
+                }
+            },
+            error: function() {
+                showToast('Erro ao buscar CEP. Tente novamente.', 'error');
+            }
+        });
+    });
+    
+    // Máscara CEP no formulário principal
+    $('#postal_code').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length <= 8) {
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        $(this).val(value);
+    });
+    
+    // Submeter formulário
+    $('#checkout-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Validar se o frete foi calculado e selecionado
+        if (!selectedShipping) {
+            showToast('Por favor, calcule e selecione uma opção de frete antes de continuar.', 'error');
+            $('#shipping-section')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        
+        // Preparar dados do pedido incluindo frete
+        const orderData = {
+            // ... outros dados do pedido
+            shipping: {
+                service_id: selectedShipping.id,
+                service_name: selectedShipping.name,
+                company: selectedShipping.company,
+                company_picture: selectedShipping.company_picture,
+                price: selectedShipping.price,
+                delivery_time: selectedShipping.delivery_time
+            }
+        };
+        
+        console.log('Dados do pedido com frete:', orderData);
+        
+        // TODO: Implementar processamento do pedido
+        showToast('Checkout em desenvolvimento. Em breve você poderá finalizar sua compra!', 'info');
+    });
+});
+</script>
+
+<?php get_footer(); ?>

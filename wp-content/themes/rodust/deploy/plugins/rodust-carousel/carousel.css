@@ -1,0 +1,247 @@
+/* Rodust Carousel Frontend CSS */
+
+.rodust-carousel {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+}
+
+.carousel-slide-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 40px 30px 30px;
+    color: white;
+}
+
+.carousel-slide-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.carousel-slide-description {
+    font-size: 16px;
+    margin-bottom: 15px;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.carousel-slide-link {
+    display: inline-block;
+    background: #007cba;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.carousel-slide-link:hover {
+    background: #005a87;
+    color: white;
+    text-decoration: none;
+}
+
+/* Setas de navegação */
+.carousel-arrows {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 15px 12px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.carousel-arrows:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-prev {
+    left: 15px;
+}
+
+.carousel-next {
+    right: 15px;
+}
+
+/* Dots de navegação */
+.carousel-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.2);
+}
+
+.carousel-dot.active {
+    background: white;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .rodust-carousel {
+        height: 250px;
+    }
+    
+    .carousel-slide-content {
+        padding: 20px 15px 15px;
+    }
+    
+    .carousel-slide-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+    
+    .carousel-slide-description {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+    
+    .carousel-slide-link {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .carousel-arrows {
+        padding: 12px 10px;
+        font-size: 16px;
+    }
+    
+    .carousel-prev {
+        left: 10px;
+    }
+    
+    .carousel-next {
+        right: 10px;
+    }
+    
+    .carousel-dots {
+        bottom: 15px;
+        gap: 8px;
+    }
+    
+    .carousel-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rodust-carousel {
+        height: 200px;
+    }
+    
+    .carousel-slide-content {
+        padding: 15px 10px 10px;
+    }
+    
+    .carousel-slide-title {
+        font-size: 18px;
+    }
+    
+    .carousel-slide-description {
+        font-size: 13px;
+    }
+}
+
+/* Estados de carregamento */
+.carousel-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: #f5f5f5;
+    color: #666;
+    font-size: 16px;
+}
+
+.carousel-loading::before {
+    content: "🔄";
+    margin-right: 10px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Sem slides */
+.carousel-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: #f9f9f9;
+    border: 2px dashed #ddd;
+    color: #999;
+    font-size: 16px;
+    text-align: center;
+}
+
+.carousel-empty::before {
+    content: "📷";
+    display: block;
+    font-size: 48px;
+    margin-bottom: 15px;
+}

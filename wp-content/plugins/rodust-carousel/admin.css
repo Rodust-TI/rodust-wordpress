@@ -1,0 +1,221 @@
+/* Carousel Admin CSS */
+
+.carousel-admin-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.carousel-settings {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.carousel-slides-section {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.slide-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.shortcode-info {
+    text-align: right;
+}
+
+.shortcode-info code {
+    background: #f1f1f1;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.slides-container {
+    min-height: 200px;
+}
+
+.slide-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.slide-item:hover {
+    border-color: #0073aa;
+    box-shadow: 0 2px 8px rgba(0,115,170,0.1);
+}
+
+.slide-item.ui-sortable-helper {
+    transform: rotate(2deg);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    border-radius: 6px 6px 0 0;
+}
+
+.slide-header h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.slide-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #999;
+}
+
+.drag-handle:hover {
+    color: #0073aa;
+}
+
+.slide-form {
+    padding: 15px;
+}
+
+.slide-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.slide-col-full {
+    grid-column: 1 / -1;
+}
+
+.slide-col label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.slide-col input,
+.slide-col textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.slide-col input:focus,
+.slide-col textarea:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.image-upload {
+    text-align: center;
+}
+
+.image-preview {
+    margin-top: 10px;
+    min-height: 60px;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.image-preview:empty::after {
+    content: "📷 Nenhuma imagem selecionada";
+    color: #999;
+    font-style: italic;
+}
+
+.no-slides {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.no-slides p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.save-slide {
+    background: #00a32a !important;
+    color: white !important;
+    border-color: #00a32a !important;
+}
+
+.delete-slide {
+    background: #d63638 !important;
+    color: white !important;
+    border-color: #d63638 !important;
+}
+
+.slide-item.saving {
+    opacity: 0.7;
+}
+
+.slide-item.saving::after {
+    content: "💾 Salvando...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* Responsivo */
+@media (max-width: 1200px) {
+    .carousel-admin-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .slide-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .slide-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .shortcode-info {
+        text-align: left;
+    }
+}
