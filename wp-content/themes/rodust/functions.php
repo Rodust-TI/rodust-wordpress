@@ -160,3 +160,31 @@ function rodust_display_carousel($atts = array()) {
         </div>';
     }
 }
+
+/**
+ * Adicionar regra de rewrite para webhook
+ */
+function rodust_webhook_rewrite_rule() {
+    add_rewrite_rule('^webhook/?$', 'index.php?webhook=1', 'top');
+}
+add_action('init', 'rodust_webhook_rewrite_rule');
+
+/**
+ * Adicionar query var para webhook
+ */
+function rodust_webhook_query_vars($vars) {
+    $vars[] = 'webhook';
+    return $vars;
+}
+add_filter('query_vars', 'rodust_webhook_query_vars');
+
+/**
+ * Template redirect para webhook
+ */
+function rodust_webhook_template_redirect() {
+    if (get_query_var('webhook')) {
+        include(get_template_directory() . '/webhook.php');
+        exit;
+    }
+}
+add_action('template_redirect', 'rodust_webhook_template_redirect');
