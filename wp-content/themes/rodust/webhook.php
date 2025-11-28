@@ -13,11 +13,12 @@ if (ob_get_level()) {
     ob_end_clean();
 }
 
-// Headers
-header('Content-Type: application/json');
+// Headers CORS - DEVE VIR ANTES DE QUALQUER OUTPUT
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, X-Bling-Signature');
+header('Access-Control-Allow-Headers: Content-Type, X-Bling-Signature, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
+header('Content-Type: application/json');
 
 // Responder OPTIONS rapidamente (CORS preflight)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

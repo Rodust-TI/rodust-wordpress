@@ -1,0 +1,26 @@
+{
+    "timestamp": "2025-11-28 20:50:16",
+    "method": "GET",
+    "headers": {
+        "Host": "localhost:8443",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/142.0.0.0 Safari\/537.36",
+        "Accept": "text\/html,application\/xhtml+xml,application\/xml;q=0.9,image\/avif,image\/webp,image\/apng,*\/*;q=0.8,application\/signed-exchange;v=b3;q=0.7",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-User": "?1",
+        "Sec-Fetch-Dest": "document",
+        "sec-ch-ua": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,zh;q=0.5",
+        "Cookie": "wordpress_logged_in_72dee64210c7647e4b7619e318d64b87=Aureo%7C1765460084%7CXiN0Q7hINa8hyR1rn2EOHQkPMbs4A6Xn7Ekr9Ppgbj7%7C5cb3eb5c36307e28ed2373aff9c7fc46d9990d81410a9ba183024d667dc0792b; wp-settings-1=libraryContent%3Dbrowse; wp-settings-time-1=1764250484; PHPSESSID=66ca9ab1537fe2a2d7041ff2280901a7; XSRF-TOKEN=eyJpdiI6IjhmYmF6T0FMRGtWR2VGSTRNRmxuSkE9PSIsInZhbHVlIjoiV1d2TEpuSjIzY1BHd2Yrb3FXTmZlMXlGdjQyNkRkWFBueHlCZGQ3WXVJdEZ1eHFrOWx6TlZZTktPVUhjTWI2Smh0Kyt6cUp1ZWJRMEZmWmhmTjhYNGJndXBBMFBGQWkrYkxLbU4xRmR6RS9BMDBROFRBNHIycWlnV1J1ZkNBUVkiLCJtYWMiOiJmYTc2NGM5MmYyMDM4Nzk4M2EyYzdiZGI5ODU4NWY4MjI0ZGRjZGY0MmEyN2FlNDUwNDBmY2I0NDIwMzQ5NTZkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBtNDY5RnozSVkzN1o0NFhDOSsya3c9PSIsInZhbHVlIjoiTVo0OGpJM2ViM2NvUVZJS1huWXpMZEJyN3N2V0lyM0ZBTHhjOFRuM3FSRXRVMFZ0TWMwdzZxZnZDR0Y5d3czYlZPT3EyazFidUpKN3pvMTR5RFM1Zmd3bHU1azdOZ2RSdloyLzBoUkxyMFFqVU1wRyswa3JTNThqZkV1TGRVd3QiLCJtYWMiOiJhNGI0MjA4OGEwZTZiYThmZWQ4YWJkZDM1NWIyZmNhMTk5MjU1OGZjYjhmYTYwYmQ0MTdiYzBhMjY3ZDZmOTVhIiwidGFnIjoiIn0%3D"
+    },
+    "body": null,
+    "raw_body": "",
+    "ip": "172.19.0.1"
+}
+====================================================================================================
+
