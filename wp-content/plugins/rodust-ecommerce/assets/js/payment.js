@@ -89,7 +89,7 @@
     /**
      * Processar pagamento
      */
-    function finalizePay() {
+    async function finalizePay() {
         const token = sessionStorage.getItem('customer_token');
         
         if (!token) {
@@ -97,9 +97,6 @@
             window.location.href = RODUST_PAYMENT.home_url + '/login';
             return;
         }
-        
-        // Mostrar loading
-        $('#payment-loading').removeClass('hidden');
         
         // Preparar dados do pedido
         const orderData = {
@@ -116,6 +113,23 @@
         
         console.log('Processando pagamento:', selectedPaymentMethod, orderData);
         
+        // Se for cartão, usar função específica do mercadopago-card.js
+        if (selectedPaymentMethod === 'credit_card') {
+            if (typeof window.processCardPayment === 'function') {
+                const result = await window.processCardPayment(orderData);
+                if (result) {
+                    handlePaymentSuccess(result);
+                }
+            } else {
+                alert('Sistema de pagamento com cartão não está carregado. Recarregue a página.');
+            }
+            return;
+        }
+        
+        // Mostrar loading
+        $('#payment-loading').removeClass('hidden');
+        $('#btn-finalize-payment').prop('disabled', true);
+        
         // Escolher endpoint baseado no método de pagamento
         let endpoint = '';
         switch(selectedPaymentMethod) {
@@ -125,12 +139,10 @@
             case 'boleto':
                 endpoint = '/api/payments/boleto';
                 break;
-            case 'credit_card':
-                endpoint = '/api/payments/card';
-                break;
             default:
                 alert('Método de pagamento inválido');
                 $('#payment-loading').addClass('hidden');
+                $('#btn-finalize-payment').prop('disabled', false);
                 return;
         }
         
@@ -147,32 +159,18 @@
             success: function(response) {
                 console.log('Pagamento processado:', response);
                 
+                $('#payment-loading').addClass('hidden');
+                $('#btn-finalize-payment').prop('disabled', false);
+                
                 if (response.success && response.data) {
-                    // Limpar carrinho do WordPress
-                    clearCart();
-                    
-                    // Salvar dados do pagamento
-                    const paymentData = {
-                        order_number: response.data.order?.order_number || '',
-                        order_id: response.data.order?.id || '',
-                        order: response.data.order || {},
-                        ...response.data.payment
-                    };
-                    sessionStorage.setItem('payment_data', JSON.stringify(paymentData));
-                    
-                    // Limpar dados do checkout
-                    sessionStorage.removeItem('checkout_data');
-                    
-                    // Redirecionar para página de confirmação
-                    window.location.href = RODUST_PAYMENT.home_url + '/pedido-confirmado?order=' + 
-                        response.data.order.id + '&payment=' + selectedPaymentMethod;
+                    handlePaymentSuccess(response.data);
                 } else {
-                    $('#payment-loading').addClass('hidden');
                     alert(response.message || 'Erro ao processar pagamento. Tente novamente.');
                 }
             },
             error: function(xhr) {
                 $('#payment-loading').addClass('hidden');
+                $('#btn-finalize-payment').prop('disabled', false);
                 console.error('Erro ao processar pagamento:', xhr);
                 
                 let errorMsg = 'Erro ao processar pagamento. Tente novamente.';
@@ -183,6 +181,30 @@
                 alert(errorMsg);
             }
         });
+    }
+    
+    /**
+     * Handle successful payment
+     */
+    function handlePaymentSuccess(data) {
+        // Limpar carrinho do WordPress
+        clearCart();
+        
+        // Salvar dados do pagamento
+        const paymentData = {
+            order_number: data.order?.order_number || '',
+            order_id: data.order?.id || '',
+            order: data.order || {},
+            payment: data.payment || data.pix || data.boleto || {}
+        };
+        sessionStorage.setItem('payment_data', JSON.stringify(paymentData));
+        
+        // Limpar dados do checkout
+        sessionStorage.removeItem('checkout_data');
+        
+        // Redirecionar para página de confirmação
+        window.location.href = RODUST_PAYMENT.home_url + '/pedido-confirmado?order=' + 
+            data.order.id + '&payment=' + selectedPaymentMethod;
     }
     
     /**

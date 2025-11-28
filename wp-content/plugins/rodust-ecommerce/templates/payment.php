@@ -11,7 +11,13 @@ defined('ABSPATH') || exit;
 
 // Enqueue assets
 wp_enqueue_style('rodust-payment', plugins_url('../assets/css/payment.css', __FILE__), [], '1.0.0');
+
+// Mercado Pago SDK (carregado antes dos nossos scripts)
+wp_enqueue_script('mercadopago-sdk', 'https://sdk.mercadopago.com/js/v2', [], null, false);
+
+// Nossos scripts
 wp_enqueue_script('rodust-payment', plugins_url('../assets/js/payment.js', __FILE__), ['jquery'], '1.0.0', true);
+wp_enqueue_script('rodust-mercadopago-card', plugins_url('../assets/js/mercadopago-card.js', __FILE__), ['jquery', 'mercadopago-sdk'], '1.0.0', true);
 
 // Localize script com variáveis PHP
 wp_localize_script('rodust-payment', 'RODUST_PAYMENT', [
