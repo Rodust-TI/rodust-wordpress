@@ -25,7 +25,14 @@ defined('ABSPATH') || exit;
                 style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
                 required
             />
-            <div id="issuerInput" style="margin-top: 10px;"></div>
+            <!-- Issuer select será inserido aqui pelo SDK -->
+            <select 
+                id="issuerInput" 
+                name="issuer"
+                style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; margin-top: 10px; display: none;"
+            >
+                <option value="">Banco emissor</option>
+            </select>
         </div>
 
         <!-- Cardholder Name -->
@@ -111,6 +118,7 @@ defined('ABSPATH') || exit;
         </div>
 
         <!-- Hidden fields for Mercado Pago -->
+        <input type="hidden" id="identificationType" name="identificationType" value="CPF" />
         <input type="hidden" id="paymentMethodId" name="paymentMethodId" />
         <input type="hidden" id="issuerId" name="issuerId" />
         <input type="hidden" id="cardToken" name="cardToken" />

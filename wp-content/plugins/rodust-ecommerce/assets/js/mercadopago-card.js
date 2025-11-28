@@ -8,7 +8,7 @@
     'use strict';
     
     let mpInstance = null;
-    let cardToken = null;
+    let cardFormInstance = null;
     let publicKey = null;
     
     /**
@@ -46,78 +46,96 @@
      * Setup card form with Mercado Pago
      */
     function setupCardForm() {
-        const cardForm = mpInstance.cardForm({
-            amount: getOrderTotal(),
-            autoMount: false,
-            form: {
-                id: "mp-card-form",
-                cardNumber: {
-                    id: "cardNumber",
-                    placeholder: "0000 0000 0000 0000",
+        try {
+            cardFormInstance = mpInstance.cardForm({
+                amount: getOrderTotal(),
+                iframe: true,
+                form: {
+                    id: "mp-card-form",
+                    cardNumber: {
+                        id: "cardNumber",
+                        placeholder: "0000 0000 0000 0000",
+                    },
+                    expirationDate: {
+                        id: "cardExpirationDate",
+                        placeholder: "MM/AA",
+                    },
+                    securityCode: {
+                        id: "securityCode",
+                        placeholder: "123",
+                    },
+                    cardholderName: {
+                        id: "cardholderName",
+                        placeholder: "Nome como está no cartão",
+                    },
+                    issuer: {
+                        id: "issuerInput",
+                        placeholder: "Banco emissor",
+                    },
+                    installments: {
+                        id: "installments",
+                        placeholder: "Parcelas",
+                    },
+                    identificationType: {
+                        id: "identificationType",
+                    },
+                    identificationNumber: {
+                        id: "cardholderDocument",
+                        placeholder: "000.000.000-00",
+                    },
                 },
-                expirationDate: {
-                    id: "cardExpirationDate",
-                    placeholder: "MM/AA",
-                },
-                securityCode: {
-                    id: "securityCode",
-                    placeholder: "123",
-                },
-                cardholderName: {
-                    id: "cardholderName",
-                    placeholder: "Nome como está no cartão",
-                },
-                issuer: {
-                    id: "issuerInput",
-                    placeholder: "Banco emissor",
-                },
-                installments: {
-                    id: "installments",
-                    placeholder: "Parcelas",
-                },
-                identificationType: {
-                    id: "identificationType",
-                },
-                identificationNumber: {
-                    id: "cardholderDocument",
-                    placeholder: "000.000.000-00",
-                },
-            },
-            callbacks: {
-                onFormMounted: error => {
-                    if (error) {
-                        console.error('Erro ao montar formulário:', error);
-                        showError('Erro ao carregar formulário de pagamento');
-                    } else {
-                        console.log('Formulário de cartão montado com sucesso');
-                        applyBrazilianMasks();
+                callbacks: {
+                    onFormMounted: error => {
+                        if (error) {
+                            console.error('Erro ao montar formulário:', error);
+                            showError('Erro ao carregar formulário de pagamento');
+                        } else {
+                            console.log('Formulário de cartão montado com sucesso');
+                            applyBrazilianMasks();
+                            
+                            // Mostrar o select de issuer quando necessário
+                            setTimeout(() => {
+                                const issuerSelect = document.getElementById('issuerInput');
+                                if (issuerSelect && issuerSelect.options.length > 1) {
+                                    issuerSelect.style.display = 'block';
+                                }
+                            }, 500);
+                        }
+                    },
+                    onSubmit: event => {
+                        event.preventDefault();
+                        return false; // Prevenir submit padrão
+                    },
+                    onFetching: (resource) => {
+                        console.log("Buscando:", resource);
+                        
+                        // Mostrar loading quando buscar parcelas
+                        if (resource === 'installments') {
+                            $('#installments').html('<option value="">Carregando parcelas...</option>');
+                        }
+                        
+                        return () => {
+                            console.log('Concluído:', resource);
+                            
+                            // Mostrar issuer select se tiver opções
+                            if (resource === 'issuer') {
+                                const issuerSelect = document.getElementById('issuerInput');
+                                if (issuerSelect && issuerSelect.options.length > 1) {
+                                    issuerSelect.style.display = 'block';
+                                }
+                            }
+                        };
                     }
                 },
-                onSubmit: event => {
-                    event.preventDefault();
-                    return false; // Prevenir submit padrão
-                },
-                onFetching: (resource) => {
-                    console.log("Buscando:", resource);
-                    return;
-                },
-                onCardTokenReceived: (error, token) => {
-                    if (error) {
-                        console.error('Erro ao gerar token:', error);
-                        showError('Dados do cartão inválidos');
-                    } else {
-                        cardToken = token;
-                        console.log('Token gerado:', token);
-                    }
-                }
-            },
-        });
-        
-        // Mount the form
-        cardForm.mount();
-        
-        // Store for later use
-        window.RodustMPCardForm = cardForm;
+            });
+            
+            // Store for later use
+            window.RodustMPCardForm = cardFormInstance;
+            
+        } catch (error) {
+            console.error('Erro ao setup card form:', error);
+            showError('Erro ao configurar formulário de pagamento');
+        }
     }
     
     /**
@@ -135,19 +153,33 @@
             $(this).val(value);
         });
         
-        // Expiration date mask
-        $('#cardExpirationDate').on('input', function() {
+        // Expiration date mask (já formatado pelo MP, mas garantir)
+        $('#cardExpirationDate').on('blur', function() {
             let value = $(this).val().replace(/\D/g, '');
-            if (value.length >= 2) {
+            if (value.length >= 4) {
                 value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                $(this).val(value);
             }
-            $(this).val(value);
         });
     }
     
     /**
      * Get order total from checkout data
      */
+    function getOrderTotal() {
+        const checkoutData = sessionStorage.getItem('checkout_data');
+        if (!checkoutData) return "0";
+        
+        try {
+            const data = JSON.parse(checkoutData);
+            const subtotal = data.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = parseFloat(data.shipping.price);
+            const total = subtotal + shipping;
+            return total.toFixed(2);
+        } catch (e) {
+            return "0";
+        }
+    }
     function getOrderTotal() {
         const checkoutData = sessionStorage.getItem('checkout_data');
         if (!checkoutData) return "0";
@@ -172,46 +204,54 @@
             const form = document.getElementById('mp-card-form');
             if (!form.checkValidity()) {
                 form.reportValidity();
-                return false;
+                return null;
+            }
+            
+            // Validate required fields
+            const cardNumber = $('#cardNumber').val();
+            const cardholderName = $('#cardholderName').val();
+            const expirationDate = $('#cardExpirationDate').val();
+            const securityCode = $('#securityCode').val();
+            const cardholderDocument = $('#cardholderDocument').val().replace(/\D/g, '');
+            const installments = $('#installments').val();
+            
+            if (!cardNumber || !cardholderName || !expirationDate || !securityCode || !cardholderDocument || !installments) {
+                showError('Preencha todos os campos do cartão');
+                return null;
+            }
+            
+            if (cardholderDocument.length !== 11) {
+                showError('CPF inválido');
+                return null;
             }
             
             showLoading();
+            hideError();
             
-            // Get form data
-            const cardForm = window.RodustMPCardForm;
-            const formData = cardForm.getCardFormData();
+            console.log('Criando token do cartão...');
             
-            console.log('Dados do formulário:', formData);
+            // Get card form data and create token
+            const tokenData = await cardFormInstance.createCardToken();
             
-            // Create token
-            await new Promise((resolve, reject) => {
-                cardForm.createCardToken({
-                    cardholderName: formData.cardholderName,
-                    identificationType: formData.identificationType,
-                    identificationNumber: formData.identificationNumber.replace(/\D/g, '')
-                }).then(token => {
-                    cardToken = token.id;
-                    resolve();
-                }).catch(error => {
-                    console.error('Erro ao criar token:', error);
-                    reject(error);
-                });
-            });
-            
-            if (!cardToken) {
+            if (!tokenData || !tokenData.token) {
                 throw new Error('Não foi possível gerar o token do cartão');
             }
+            
+            console.log('Token gerado com sucesso');
+            
+            // Get form data
+            const formData = cardFormInstance.getCardFormData();
             
             // Add card data to order
             const paymentData = {
                 ...orderData,
-                card_token: cardToken,
+                card_token: tokenData.token,
                 installments: parseInt(formData.installments),
                 payment_method_id: formData.paymentMethodId,
-                issuer_id: formData.issuerId
+                issuer_id: formData.issuerId || ''
             };
             
-            console.log('Enviando pagamento:', paymentData);
+            console.log('Enviando pagamento para API...');
             
             // Send payment to API
             const token = sessionStorage.getItem('customer_token');
@@ -229,6 +269,7 @@
             hideLoading();
             
             if (response.success) {
+                console.log('Pagamento processado com sucesso');
                 return response.data;
             } else {
                 throw new Error(response.message || 'Erro ao processar pagamento');
@@ -246,7 +287,7 @@
             }
             
             showError(errorMsg);
-            return false;
+            return null;
         }
     };
     
@@ -255,9 +296,13 @@
      */
     function showError(message) {
         $('#mp-card-errors').text(message).show();
-        setTimeout(() => {
-            $('#mp-card-errors').fadeOut();
-        }, 5000);
+    }
+    
+    /**
+     * Hide error message
+     */
+    function hideError() {
+        $('#mp-card-errors').hide();
     }
     
     /**
@@ -279,17 +324,20 @@
     /**
      * Initialize when payment method is selected
      */
-    $(document).on('click', '.payment-method[data-method="credit_card"]', function() {
-        if (!mpInstance && typeof MercadoPago !== 'undefined') {
-            initMercadoPago();
+    $(document).on('click', '.payment-method', function() {
+        const method = $(this).find('input[type="radio"]').val();
+        
+        if (method === 'credit_card' && !mpInstance && typeof MercadoPago !== 'undefined') {
+            // Aguardar formulário aparecer
+            setTimeout(() => {
+                initMercadoPago();
+            }, 100);
         }
     });
     
-    // Also initialize if card form is already visible on page load
+    // Debug
     $(document).ready(function() {
-        if ($('#credit-card-form').is(':visible') && typeof MercadoPago !== 'undefined') {
-            initMercadoPago();
-        }
+        console.log('Mercado Pago Card JS carregado');
     });
     
 })(jQuery);
