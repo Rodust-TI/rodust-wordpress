@@ -8,6 +8,9 @@ const MyAccountOrders = (function($) {
     'use strict';
     
     let ordersLoaded = false;
+    let currentPage = 1;
+    let totalPages = 1;
+    let allOrders = [];
     
     /**
      * Inicialização
@@ -17,8 +20,11 @@ const MyAccountOrders = (function($) {
         // Escutar quando a aba for trocada
         $(document).on('myaccount:tab-changed', function(e, tab) {
             console.log('[Orders] Tab changed:', tab);
-            if (tab === 'pedidos' && !ordersLoaded) {
-                loadOrders();
+            if (tab === 'pedidos') {
+                // Carregar apenas se ainda não carregou nenhuma vez
+                if (!ordersLoaded) {
+                    loadOrders();
+                }
             }
         });
         
@@ -44,7 +50,7 @@ const MyAccountOrders = (function($) {
         $('#orders-empty').addClass('hidden');
         
         $.ajax({
-            url: window.RODUST_API_URL + '/api/orders',
+            url: window.RODUST_API_URL + '/api/orders?per_page=10&page=' + currentPage,
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -55,12 +61,17 @@ const MyAccountOrders = (function($) {
                 ordersLoaded = true;
                 $('#orders-loading').addClass('hidden');
                 
-                // Laravel retorna paginação: {data: [...], current_page: 1, ...}
+                // Laravel retorna paginação: {data: [...], current_page: 1, total: X, last_page: Y}
                 const orders = response.data || [];
-                console.log('[Orders] Total de pedidos:', orders.length);
+                currentPage = response.current_page || 1;
+                totalPages = response.last_page || 1;
+                const total = response.total || 0;
+                
+                console.log('[Orders] Página:', currentPage, '/', totalPages, '- Total:', total);
                 
                 if (orders.length > 0) {
                     renderOrders(orders);
+                    renderPagination(response);
                     $('#orders-list').removeClass('hidden');
                 } else {
                     console.log('[Orders] Nenhum pedido encontrado');
@@ -251,6 +262,69 @@ const MyAccountOrders = (function($) {
     }
     
     /**
+     * Renderizar paginação
+     */
+    function renderPagination(paginationData) {
+        const $pagination = $('#orders-pagination');
+        
+        if (paginationData.last_page <= 1) {
+            $pagination.addClass('hidden');
+            return;
+        }
+        
+        let html = '';
+        const currentPage = paginationData.current_page;
+        const lastPage = paginationData.last_page;
+        
+        // Botão Anterior
+        if (currentPage > 1) {
+            html += `<button onclick="MyAccountOrders.loadPage(${currentPage - 1})" 
+                     class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
+                     ← Anterior
+                     </button>`;
+        }
+        
+        // Números de página
+        for (let i = 1; i <= lastPage; i++) {
+            // Mostrar primeira, última, atual e adjacentes
+            if (i === 1 || i === lastPage || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                const isActive = i === currentPage;
+                const bgClass = isActive ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50';
+                html += `<button onclick="MyAccountOrders.loadPage(${i})" 
+                         class="px-4 py-2 border border-gray-300 rounded-lg font-medium ${bgClass}">
+                         ${i}
+                         </button>`;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                html += `<span class="px-2">...</span>`;
+            }
+        }
+        
+        // Botão Próximo
+        if (currentPage < lastPage) {
+            html += `<button onclick="MyAccountOrders.loadPage(${currentPage + 1})" 
+                     class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
+                     Próximo →
+                     </button>`;
+        }
+        
+        $pagination.html(html).removeClass('hidden');
+    }
+    
+    /**
+     * Carregar página específica
+     */
+    function loadPage(page) {
+        currentPage = page;
+        ordersLoaded = false; // Força recarregar
+        loadOrders();
+        
+        // Scroll suave para o topo da lista
+        $('html, body').animate({
+            scrollTop: $('#tab-pedidos').offset().top - 100
+        }, 300);
+    }
+    
+    /**
      * Helpers - Status Badges
      */
     function getStatusBadge(status) {
@@ -290,7 +364,8 @@ const MyAccountOrders = (function($) {
     // Public API
     return {
         init,
-        viewDetails
+        viewDetails,
+        loadPage
     };
     
 })(jQuery);

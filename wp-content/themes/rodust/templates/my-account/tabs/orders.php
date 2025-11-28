@@ -17,6 +17,9 @@
         <!-- Lista de Pedidos -->
         <div id="orders-list" class="hidden space-y-4"></div>
         
+        <!-- Paginação -->
+        <div id="orders-pagination" class="hidden mt-6 flex justify-center items-center gap-2"></div>
+        
         <!-- Mensagem Vazia -->
         <div id="orders-empty" class="hidden text-center py-12">
             <div class="text-6xl mb-4">📦</div>

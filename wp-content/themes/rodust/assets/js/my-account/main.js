@@ -27,7 +27,6 @@ const MyAccount = (function($) {
         
         loadCustomerData();
         initTabNavigation();
-        checkUrlTab();
     }
     
     /**
@@ -53,6 +52,9 @@ const MyAccount = (function($) {
                     
                     // Disparar evento customizado
                     $(document).trigger('myaccount:loaded', [customerData]);
+                    
+                    // Verificar se tem parâmetro tab na URL (após carregar dados)
+                    checkUrlTab();
                 } else {
                     console.error('[MyAccount] Response não indica sucesso:', response);
                     showNotAuthenticated();
@@ -97,6 +99,11 @@ const MyAccount = (function($) {
         $('.tab-content').addClass('hidden');
         $('#tab-' + tab).removeClass('hidden');
         
+        // Atualizar URL sem recarregar página (opcional, mas melhora UX)
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tab);
+        window.history.replaceState({}, '', url);
+        
         // Disparar evento customizado para a aba
         $(document).trigger('myaccount:tab-changed', [tab]);
     }
@@ -108,7 +115,10 @@ const MyAccount = (function($) {
         const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
         
+        console.log('[MyAccount] Verificando URL tab:', tab);
+        
         if (tab) {
+            console.log('[MyAccount] Trocando para aba:', tab);
             switchTab(tab);
         }
     }

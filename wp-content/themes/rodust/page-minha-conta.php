@@ -76,11 +76,12 @@ foreach ($modules as $index => $module) {
     $deps = ($index === 0) ? array('jquery') : array('jquery', 'my-account-main');
     wp_enqueue_script('my-account-' . $module, $js_uri . $module . '.js', $deps, $version, true);
     
-    // Adicionar API URL inline apenas no primeiro script (main)
+    // Adicionar API URL e HOME URL inline apenas no primeiro script (main)
     if ($index === 0) {
         $inline_script = sprintf(
-            'window.RODUST_API_URL = %s; console.log("[Minha Conta] API URL configurada:", window.RODUST_API_URL);',
-            wp_json_encode($api_url)
+            'window.RODUST_API_URL = %s; window.RODUST_HOME_URL = %s; console.log("[Minha Conta] API URL:", window.RODUST_API_URL);',
+            wp_json_encode($api_url),
+            wp_json_encode(home_url())
         );
         wp_add_inline_script('my-account-main', $inline_script, 'before');
     }
