@@ -220,7 +220,7 @@
             const subtotal = price * quantity;
             
             // Formatar o subtotal
-            const formattedSubtotal = 'R$ ' + subtotal.toFixed(2).replace('.', ',');
+            const formattedSubtotal = RodustHelpers.formatPrice(subtotal);
             
             // Atualizar o subtotal do item
             $(`.item-subtotal[data-product-id="${productId}"]`).text(formattedSubtotal);
@@ -380,8 +380,8 @@
             const subtotal = parseFloat($('.cart-subtotal .amount').text().replace(/[^\d,]/g, '').replace(',', '.'));
             const total = subtotal + cost;
             
-            $('.shipping-row .amount').text('R$ ' + cost.toFixed(2).replace('.', ','));
-            $('.order-total .total-amount').text('R$ ' + total.toFixed(2).replace('.', ','));
+            $('.shipping-row .amount').text(RodustHelpers.formatPrice(cost));
+            $('.order-total .total-amount').text(RodustHelpers.formatPrice(total));
         },
 
         /**
@@ -389,10 +389,10 @@
          */
         updateCartTotals: function(data) {
             if (data.subtotal !== undefined) {
-                $('.cart-subtotal .amount').text('R$ ' + data.subtotal.toFixed(2).replace('.', ','));
+                $('.cart-subtotal .amount').text(RodustHelpers.formatPrice(data.subtotal));
             }
             if (data.total !== undefined) {
-                $('.order-total .total-amount').text('R$ ' + data.total.toFixed(2).replace('.', ','));
+                $('.order-total .total-amount').text(RodustHelpers.formatPrice(data.total));
             }
             this.updateCartCount();
         },

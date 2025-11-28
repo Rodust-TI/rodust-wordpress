@@ -58,7 +58,7 @@
                         <span class="quantity">Qtd: ${item.quantity}</span>
                     </div>
                     <div class="item-price">
-                        R$ ${itemTotal.toFixed(2).replace('.', ',')}
+                        ${RodustHelpers.formatPrice(itemTotal)}
                     </div>
                 </div>
             `;
@@ -80,10 +80,10 @@
         const shippingCost = parseFloat(shipping.price);
         const total = subtotal + shippingCost;
         
-        $('.subtotal-value').text(`R$ ${subtotal.toFixed(2).replace('.', ',')}`);
-        $('.shipping-value').text(`R$ ${shippingCost.toFixed(2).replace('.', ',')}`);
-        $('.total-value').text(`R$ ${total.toFixed(2).replace('.', ',')}`);
-        $('.total-mobile').text(`R$ ${total.toFixed(2).replace('.', ',')}`);
+        $('.subtotal-value').text(RodustHelpers.formatPrice(subtotal));
+        $('.shipping-value').text(RodustHelpers.formatPrice(shippingCost));
+        $('.total-value').text(RodustHelpers.formatPrice(total));
+        $('.total-mobile').text(RodustHelpers.formatPrice(total));
     }
     
     /**

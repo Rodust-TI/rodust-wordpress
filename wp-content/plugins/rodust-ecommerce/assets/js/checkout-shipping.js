@@ -114,7 +114,7 @@ function renderShippingOptions(options) {
                     <div class="shipping-option-delivery">📦 ${option.delivery_time} dias úteis</div>
                 </div>
                 <div class="shipping-option-price">
-                    <div class="shipping-option-price-value">R$ ${parseFloat(option.price).toFixed(2).replace('.', ',')}</div>
+                    <div class="shipping-option-price-value">${RodustHelpers.formatPrice(parseFloat(option.price))}</div>
                 </div>
             </div>
         `);
@@ -154,20 +154,20 @@ function updateOrderTotal() {
     const total = subtotal + shippingCost;
     
     // Atualizar subtotal (já está correto no HTML)
-    jQuery('.subtotal-value').text(`R$ ${subtotal.toFixed(2).replace('.', ',')}`);
+    jQuery('.subtotal-value').text(RodustHelpers.formatPrice(subtotal));
     
     // Atualizar frete na sidebar
     if (selectedShipping) {
         jQuery('.shipping-value').html(`
             <span style="color: #10b981;">${selectedShipping.company}</span><br>
-            <strong>R$ ${shippingCost.toFixed(2).replace('.', ',')}</strong>
+            <strong>${RodustHelpers.formatPrice(shippingCost)}</strong>
         `);
     } else {
         jQuery('.shipping-value').text('A calcular');
     }
     
     // Atualizar total
-    jQuery('.total-value').text(`R$ ${total.toFixed(2).replace('.', ',')}`);
+    jQuery('.total-value').text(RodustHelpers.formatPrice(total));
 }
 
 // Evento: calcular frete ao clicar no botão
