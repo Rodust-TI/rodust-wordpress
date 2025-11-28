@@ -63,10 +63,22 @@ wp-content/mu-plugins/
 
 ## ⚙️ Configuração
 
-Nenhuma configuração necessária! O plugin detecta automaticamente:
-- URL da API Laravel (`RODUST_API_URL` do wp-config.php)
-- Post types personalizados
-- Plugins instalados
+### URL da API Laravel
+
+O Dev Tools **lê automaticamente** a URL da API configurada no plugin `rodust-ecommerce`:
+
+**Prioridade de configuração:**
+1. **Configuração do Plugin** → `Rodust Ecommerce → Configurações → API URL`
+2. **Função Helper** → `rodust_plugin_get_api_url()` (se disponível)
+3. **Constante wp-config.php** → `RODUST_API_URL` (fallback)
+
+**Como configurar:**
+1. Acesse: `Rodust Ecommerce → Configurações`
+2. Preencha o campo "URL da API Laravel"
+3. Exemplo: `http://localhost:8000/api`
+4. Salve as alterações
+
+✅ **Benefício:** Configuração centralizada em um único lugar!
 
 ## 🔧 Desenvolvimento
 

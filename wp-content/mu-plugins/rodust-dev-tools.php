@@ -116,7 +116,27 @@ function rodust_dev_tools_page() {
                     </tr>
                     <tr>
                         <td><strong>API URL:</strong></td>
-                        <td><?php echo defined('RODUST_API_URL') ? RODUST_API_URL : 'Não configurado'; ?></td>
+                        <td>
+                            <?php 
+                            $settings = get_option('rodust_ecommerce_settings', []);
+                            $api_url = $settings['api_url'] ?? '';
+                            
+                            if (empty($api_url) && function_exists('rodust_plugin_get_api_url')) {
+                                $api_url = rodust_plugin_get_api_url();
+                            }
+                            
+                            if (empty($api_url) && defined('RODUST_API_URL')) {
+                                $api_url = RODUST_API_URL;
+                            }
+                            
+                            if (empty($api_url)) {
+                                echo '<span style="color: red;">❌ Não configurado</span>';
+                                echo '<br><small>Configure em: <a href="' . admin_url('admin.php?page=rodust-ecommerce') . '">Rodust Ecommerce → Configurações</a></small>';
+                            } else {
+                                echo '<code>' . esc_html($api_url) . '</code>';
+                            }
+                            ?>
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>Debug Mode:</strong></td>
@@ -351,7 +371,20 @@ function rodust_plugin_manager_page() {
  * Página: Test API
  */
 function rodust_test_api_page() {
-    $api_url = defined('RODUST_API_URL') ? RODUST_API_URL : '';
+    // Obter URL da API das configurações do plugin rodust-ecommerce
+    $settings = get_option('rodust_ecommerce_settings', []);
+    $api_url = $settings['api_url'] ?? '';
+    
+    // Fallback para função helper se disponível
+    if (empty($api_url) && function_exists('rodust_plugin_get_api_url')) {
+        $api_url = rodust_plugin_get_api_url();
+    }
+    
+    // Último fallback para constante (se definida no wp-config.php)
+    if (empty($api_url) && defined('RODUST_API_URL')) {
+        $api_url = RODUST_API_URL;
+    }
+    
     $test_result = null;
     
     // Testar API se solicitado
@@ -377,29 +410,42 @@ function rodust_test_api_page() {
     ?>
     <div class="wrap">
         <h1>🔗 Testar API Laravel</h1>
-        <p>URL da API: <code><?php echo $api_url ?: 'Não configurado'; ?></code></p>
         
-        <div class="card" style="max-width: 800px;">
-            <form method="post">
-                <?php wp_nonce_field('rodust_test_api'); ?>
-                <button type="submit" name="test_api" class="button button-primary button-large">
-                    🔗 Testar Conexão
-                </button>
-            </form>
+        <?php if (empty($api_url)): ?>
+            <div class="notice notice-error">
+                <p>
+                    <strong>⚠️ API URL não configurada!</strong><br>
+                    Configure a URL da API em: 
+                    <a href="<?php echo admin_url('admin.php?page=rodust-ecommerce'); ?>">
+                        Rodust Ecommerce → Configurações
+                    </a>
+                </p>
+            </div>
+        <?php else: ?>
+            <p>URL da API: <code><?php echo esc_html($api_url); ?></code></p>
             
-            <?php if ($test_result): ?>
-                <hr>
+            <div class="card" style="max-width: 800px;">
+                <form method="post">
+                    <?php wp_nonce_field('rodust_test_api'); ?>
+                    <button type="submit" name="test_api" class="button button-primary button-large">
+                        🔗 Testar Conexão
+                    </button>
+                </form>
                 
-                <?php if ($test_result['success']): ?>
-                    <div class="notice notice-success inline"><p>✅ <strong>Conexão OK!</strong> Status: <?php echo $test_result['status']; ?></p></div>
+                <?php if ($test_result): ?>
+                    <hr>
                     
-                    <h3>Resposta:</h3>
-                    <pre style="background: #f5f5f5; padding: 15px; overflow-x: auto;"><?php echo esc_html(substr($test_result['body'], 0, 1000)); ?></pre>
-                <?php else: ?>
-                    <div class="notice notice-error inline"><p>❌ <strong>Erro:</strong> <?php echo esc_html($test_result['message']); ?></p></div>
+                    <?php if ($test_result['success']): ?>
+                        <div class="notice notice-success inline"><p>✅ <strong>Conexão OK!</strong> Status: <?php echo $test_result['status']; ?></p></div>
+                        
+                        <h3>Resposta:</h3>
+                        <pre style="background: #f5f5f5; padding: 15px; overflow-x: auto;"><?php echo esc_html(substr($test_result['body'], 0, 1000)); ?></pre>
+                    <?php else: ?>
+                        <div class="notice notice-error inline"><p>❌ <strong>Erro:</strong> <?php echo esc_html($test_result['message']); ?></p></div>
+                    <?php endif; ?>
                 <?php endif; ?>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
     </div>
     <?php
 }
