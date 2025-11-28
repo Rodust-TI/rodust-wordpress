@@ -112,10 +112,19 @@ final class Rodust_Ecommerce {
             RODUST_ECOMMERCE_VERSION
         );
 
+        // Helper functions (deve ser carregado primeiro)
+        wp_enqueue_script(
+            'rodust-helpers',
+            RODUST_ECOMMERCE_URL . 'assets/js/helpers.js',
+            [],
+            RODUST_ECOMMERCE_VERSION,
+            true
+        );
+
         wp_enqueue_script(
             'rodust-ecommerce',
             RODUST_ECOMMERCE_URL . 'assets/js/rodust-ecommerce.js',
-            ['jquery'],
+            ['jquery', 'rodust-helpers'],
             RODUST_ECOMMERCE_VERSION,
             true
         );

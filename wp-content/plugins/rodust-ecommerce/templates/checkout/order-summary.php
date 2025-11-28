@@ -14,7 +14,7 @@
                         <span class="quantity">Qtd: <?php echo esc_html($item['quantity']); ?></span>
                     </div>
                     <div class="item-price">
-                        R$ <?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?>
+                        <?php echo Rodust_Helpers::format_price($item['price'] * $item['quantity']); ?>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -23,7 +23,7 @@
         <div class="order-totals">
             <div class="total-row">
                 <span><?php _e('Subtotal', 'rodust-ecommerce'); ?></span>
-                <span class="subtotal-value">R$ <?php echo number_format($subtotal, 2, ',', '.'); ?></span>
+                <span class="subtotal-value"><?php echo Rodust_Helpers::format_price($subtotal); ?></span>
             </div>
             
             <div class="total-row shipping-row">
@@ -33,7 +33,7 @@
             
             <div class="total-row total-row-final">
                 <strong><?php _e('Total', 'rodust-ecommerce'); ?></strong>
-                <strong class="total-value">R$ <?php echo number_format($subtotal, 2, ',', '.'); ?></strong>
+                <strong class="total-value"><?php echo Rodust_Helpers::format_price($subtotal); ?></strong>
             </div>
         </div>
         

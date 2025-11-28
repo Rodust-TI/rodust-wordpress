@@ -32,6 +32,9 @@ if (file_exists(RODUST_ECOMMERCE_PATH . 'vendor/autoload.php')) {
 // URL configuration helpers
 require_once RODUST_ECOMMERCE_PATH . 'includes/functions-urls.php';
 
+// Helper functions class
+require_once RODUST_ECOMMERCE_PATH . 'includes/class-helpers.php';
+
 // Main plugin class
 require_once RODUST_ECOMMERCE_PATH . 'includes/class-rodust-ecommerce.php';
 

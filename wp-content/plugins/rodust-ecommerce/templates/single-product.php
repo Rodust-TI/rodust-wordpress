@@ -61,7 +61,7 @@ while (have_posts()) : the_post();
                 
                 <div class="product-price">
                     <span class="price-label"><?php _e('Preço:', 'rodust-ecommerce'); ?></span>
-                    <span class="price-value">R$ <?php echo number_format($price, 2, ',', '.'); ?></span>
+                    <span class="price-value"><?php echo Rodust_Helpers::format_price($price); ?></span>
                 </div>
                 
                 <div class="product-stock">
@@ -221,7 +221,7 @@ while (have_posts()) : the_post();
                                 <a href="<?php the_permalink(); ?>">
                                     <?php the_post_thumbnail('medium'); ?>
                                     <h4><?php the_title(); ?></h4>
-                                    <span class="price">R$ <?php echo number_format($rel_price, 2, ',', '.'); ?></span>
+                                    <span class="price"><?php echo Rodust_Helpers::format_price($rel_price); ?></span>
                                 </a>
                             </article>
                         <?php endwhile; wp_reset_postdata(); ?>

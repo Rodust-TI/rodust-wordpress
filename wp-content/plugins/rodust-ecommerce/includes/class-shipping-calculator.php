@@ -133,7 +133,7 @@ class Rodust_Shipping_Calculator {
                 'price' => floatval($option['price']),
                 'delivery_time' => intval($option['delivery_time'] ?? 0),
                 'delivery_range' => $option['delivery_range'] ?? [],
-                'formatted_price' => 'R$ ' . number_format($option['price'], 2, ',', '.'),
+                'formatted_price' => Rodust_Helpers::format_price($option['price']),
                 'formatted_time' => sprintf(
                     _n('%d dia útil', '%d dias úteis', $option['delivery_time'] ?? 0, 'rodust-ecommerce'),
                     $option['delivery_time'] ?? 0
@@ -156,7 +156,7 @@ class Rodust_Shipping_Calculator {
      * @return string
      */
     private function sanitize_postal_code($postal_code) {
-        return preg_replace('/[^0-9]/', '', $postal_code);
+        return Rodust_Helpers::sanitize_postal_code($postal_code);
     }
 
     /**

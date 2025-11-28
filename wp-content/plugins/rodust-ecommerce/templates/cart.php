@@ -89,7 +89,7 @@ $cart_items = $cart->get_cart();
                                         
                                         <!-- Preço Unitário -->
                                         <div class="text-gray-700 text-sm font-medium w-24 text-right">
-                                            R$ <?php echo number_format($item['price'], 2, ',', '.'); ?>
+                                            <?php echo Rodust_Helpers::format_price($item['price']); ?>
                                         </div>
                                         
                                         <!-- Seletor de Quantidade -->
@@ -121,7 +121,7 @@ $cart_items = $cart->get_cart();
                                         
                                         <!-- Subtotal -->
                                         <div class="item-subtotal text-gray-900 font-bold text-sm w-28 text-right" data-product-id="<?php echo esc_attr($product_id); ?>">
-                                            R$ <?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?>
+                                            <?php echo Rodust_Helpers::format_price($item['price'] * $item['quantity']); ?>
                                         </div>
                                         
                                         <!-- Botão Remover -->
@@ -180,7 +180,7 @@ $cart_items = $cart->get_cart();
                             <div class="flex justify-between items-center text-gray-700">
                                 <span><?php _e('Subtotal', 'rodust-ecommerce'); ?></span>
                                 <span class="cart-subtotal font-semibold">
-                                    <span class="amount">R$ <?php echo number_format($cart->get_subtotal(), 2, ',', '.'); ?></span>
+                                    <span class="amount"><?php echo Rodust_Helpers::format_price($cart->get_subtotal()); ?></span>
                                 </span>
                             </div>
                             
@@ -215,7 +215,7 @@ $cart_items = $cart->get_cart();
                                 <div class="order-total flex justify-between items-center">
                                     <span class="text-lg font-bold text-gray-900"><?php _e('Total', 'rodust-ecommerce'); ?></span>
                                     <span class="text-2xl font-bold text-gray-900">
-                                        <span class="amount total-amount">R$ <?php echo number_format($cart->get_total(), 2, ',', '.'); ?></span>
+                                        <span class="amount total-amount"><?php echo Rodust_Helpers::format_price($cart->get_total()); ?></span>
                                     </span>
                                 </div>
                             </div>

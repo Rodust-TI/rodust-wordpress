@@ -254,10 +254,10 @@ class Rodust_Cart_Manager {
             // Verificar se preço mudou
             if (abs($product['price'] - $item['price']) > 0.01) {
                 $errors[] = sprintf(
-                    __('O preço de "%s" foi atualizado de R$ %s para R$ %s.', 'rodust-ecommerce'),
+                    __('O preço de "%s" foi atualizado de %s para %s.', 'rodust-ecommerce'),
                     $item['name'],
-                    number_format($item['price'], 2, ',', '.'),
-                    number_format($product['price'], 2, ',', '.')
+                    Rodust_Helpers::format_price($item['price']),
+                    Rodust_Helpers::format_price($product['price'])
                 );
             }
         }

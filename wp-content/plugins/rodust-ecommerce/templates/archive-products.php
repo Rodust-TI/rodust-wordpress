@@ -204,7 +204,7 @@ $orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'da
                                     <!-- Preço -->
                                     <div class="mb-3">
                                         <span class="text-2xl font-bold text-blue-600">
-                                            R$ <?php echo number_format($price, 2, ',', '.'); ?>
+                                            <?php echo Rodust_Helpers::format_price($price); ?>
                                         </span>
                                     </div>
                                     
