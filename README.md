@@ -1,6 +1,37 @@
 # 🎨 Rodust WordPress
 
-Site e-commerce da Rodust desenvolvido em WordPress + Laravel (API).
+Frontend do projeto Rodust E-commerce desenvolvido em WordPress integrado com Laravel API.
+
+> **📚 Documentação completa:** [`/docs/`](../docs/)  
+> **Quick Start:** [Guia Rápido do Usuário](../GUIA-RAPIDO-USUARIO.md)
+
+---
+
+## 🚀 Quick Start
+
+```powershell
+# WordPress roda em container Docker junto com Laravel
+cd M:\Websites\rodust.com.br\ecommerce
+.\vendor\bin\sail up -d
+```
+
+**Acessar WordPress:** http://localhost:8443
+
+---
+
+## 📚 Documentação
+
+Toda documentação foi centralizada em [`/docs/`](../docs/):
+
+- 🚀 [Setup e Instalação](../docs/01-SETUP/)
+- 🏗️ [Arquitetura Híbrida](../docs/02-ARQUITETURA/)
+- 🔌 [Integrações](../docs/03-INTEGRACAO/)
+- 💻 [Templates WordPress](../docs/04-DESENVOLVIMENTO/TEMPLATES-WORDPRESS.md)
+- ✅ [Guia de Testes](../docs/05-TESTES/)
+- 🚀 [Deploy e SMTP](../docs/06-DEPLOY/)
+- 📖 [Referência](../docs/08-REFERENCIA/)
+
+---
 
 ## 📦 O que está neste repositório
 
@@ -11,6 +42,8 @@ Site e-commerce da Rodust desenvolvido em WordPress + Laravel (API).
   - `/wp-content/plugins/rodust-contact-form/` - Formulário de contato
   - `/wp-content/plugins/rodust-smtp/` - Configuração SMTP
   - `/wp-content/plugins/smart-menu-links/` - Menu inteligente
+
+---
 
 ## 🚀 Como usar
 
